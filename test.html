@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>MafiApp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+
+<script>
+/* ============================================================
+   ✏️  CONFIGURACIÓN — editá solo esto
+   ============================================================ */
+const CONFIG = {
+
+  // Cómo la saludás (su nombre, un apodo, lo que quieras).
+  // Este es el valor GENERAL: se usa si el día no tiene uno propio.
+  nombre: "Sofi",
+
+  // Cómo firmás las cartas (aparece al pie de cada mensaje).
+  // También es el valor general; cada día puede tener su propia firma.
+  firma: "— Yo",
+
+  // Fecha de aniversario para el contador de días.
+  // Dejalo vacío ("") si no querés mostrar el contador.
+  aniversario: "2018-05-28",
+
+  // FONDO DE LA APP:
+  //   color:  cualquier color en hex (ej "#151210", "#F2EFE9", "#1B2A41")
+  //   imagen: si ponés una URL o nombre de archivo acá, se usa de fondo
+  //           en vez del color. Podés subir la foto al mismo repositorio
+  //           de GitHub y escribir solo el nombre, ej: "fondo.jpg"
+  //   textoClaro: true = texto blanco (fondos oscuros)
+  //               false = texto oscuro (fondos claros)
+  //               Solo se usa con imagen; con color se calcula solo.
+  //   estrellas: true muestra un cielo estrellado sutil (solo sin imagen)
+  fondo: {
+    color: "#171310",
+    imagen: "",
+    textoClaro: true,
+    estrellas: true
+  },
+
+  /* ----------------------------------------------------------
+     PLAN DÍA POR DÍA
+     Para cada fecha ponés el mensaje y UNA actividad:
+
+       { tipo: "video",    url: "link de youtube", titulo: "..." }
+       { tipo: "ahorcado", palabra: "PALABRA" }
+       { tipo: "sopa",     palabras: ["UNA","DOS"] }   (hasta 12 letras c/u)
+       { tipo: "trivia",   pregunta: "...", opciones: ["A","B","C"],
+         respuesta: 1,          <- número de la opción correcta (1, 2 o 3)
+         acierto: "texto si acierta", error: "texto si le erra" }
+       { tipo: "cupon",    texto: "una cena donde elijas" }
+       { tipo: "foto",     archivo: "nombre.jpg", texto: "epígrafe" }
+                           (subí la foto al mismo repositorio)
+       { tipo: "mision",   texto: "mandame un audio cantando..." }
+
+     OPCIONALES por día:
+       nombre: "..."   -> cómo la saludás ese día
+       firma: "..."    -> cómo firmás ese día
+       sellado: true   -> la carta queda sellada hasta que gane el
+                          juego del día (solo ahorcado, sopa o trivia)
+
+     Si un día no está en la lista, se usa "porDefecto".
+     ---------------------------------------------------------- */
+  porDefecto: {
+    mensaje: "Hoy no dejé nada programado, pero igual pensé en vos.",
+    actividad: { tipo: "ahorcado", palabra: "SORPRESA" }
+  },
+
+  // Cuenta regresiva a un evento (cita, viaje, lo que venga).
+  // Dejá fecha en "" para ocultarla.
+  proximoEvento: {
+    fecha: "",
+    texto: "para vernos"
+  },
+
+  // Días especiales (formato "MM-DD"): la app se pone de fiesta,
+  // con más estrellas y todo dorado. El aniversario se agrega solo.
+  diasEspeciales: ["08-14"],
+
+  dias: {
+    "2026-07-30": {
+      nombre: "Hermosa",
+      firma: "— Yo",
+      mensaje: "Bienvenida a MafiApp, aca vas a encontrar cosas todos los dias, preparate porque esta llena de sorpresas.",
+    },
+    "2026-07-31": {
+      sellado: true,
+      mensaje: "Muy bien! Como lo lograste revolver podes leer el mensaje de hoy, ojala este linda la peli, te amo <3",
+       actividad: { tipo: "ahorcado", palabra: "AVATAR" }
+
+    },
+    "2026-08-01": {
+      sellado: true,
+      mensaje: "Ayer Avatar y hoy Spiderman! Me gusta esta semana de tantos dias juntitos",
+      actividad: { tipo: "trivia",
+        pregunta: "¿Dónde fuimos por primera vez al cine?",
+        opciones: ["Unicenter", "Dot", "Norcenter"],
+        respuesta: 1,
+        acierto: "Que peliculon Your Name",
+        error: "Mati tite" }
+    },
+    "2026-08-02": {
+      mensaje: "Hoy no se juega. Hoy se cobra.",
+      actividad: { tipo: "cupon", texto: "Válido por una cena donde vos elijas" }
+    },
+    "2026-08-03": {
+      mensaje: "Encontré esta foto y me quedé un rato mirándola.",
+      actividad: { tipo: "foto", archivo: "nosotros.jpg", texto: "Mi lugar favorito sos vos" }
+    },
+    "2026-08-04": {
+      mensaje: "Hoy tenés tarea.",
+      actividad: { tipo: "mision", texto: "Mandame un audio cantando el estribillo de nuestra canción. Sin vergüenza." }
+    }
+  }
+};
+/* ============================================================ */
+</script>
+
+<style>
+:root{
+  --acc:#E4B75B;
+  --acc-soft:rgba(228,183,91,.35);
+  --ink:#F3EFE7;
+  --ink-soft:rgba(243,239,231,.58);
+  --card:rgba(255,255,255,.055);
+  --card-border:rgba(255,255,255,.13);
+  --key:rgba(255,255,255,.09);
+  --paper:#F6EFE2;
+  --paper-ink:#2E2418;
+  --paper-soft:#8A7A5E;
+  --radius:18px;
+  --sans:-apple-system, "SF Pro Text", system-ui, "Segoe UI", sans-serif;
+  --serif:"Cormorant Garamond", "New York", ui-serif, Georgia, serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:var(--sans);
+  color:var(--ink);
+  background:#171310 center/cover no-repeat fixed;
+  -webkit-user-select:none;user-select:none;
+}
+body:not(.with-image){
+  background-image:radial-gradient(120% 90% at 50% 0%, #231C16 0%, #171310 55%, #100D0B 100%);
+}
+body.with-image::before{
+  content:"";position:fixed;inset:0;z-index:-1;
+  background:rgba(10,8,6,.5);
+}
+body.light-text-off{
+  --ink:#241E15; --ink-soft:rgba(36,30,21,.55);
+  --card:rgba(255,255,255,.6); --card-border:rgba(0,0,0,.12);
+  --key:rgba(0,0,0,.06);
+}
+body.light-text-off.with-image::before{ background:rgba(255,252,246,.4); }
+body.light-text-off:not(.with-image){ background-image:none; }
+
+/* cielo estrellado */
+#sky{position:fixed;inset:0;z-index:-2;pointer-events:none}
+#sky .st{
+  position:absolute;border-radius:50%;background:var(--ink);
+  opacity:.25;animation:tw 4s ease-in-out infinite;
+}
+@keyframes tw{0%,100%{opacity:.12}50%{opacity:.5}}
+
+#app{
+  max-width:480px;margin:0 auto;min-height:100dvh;
+  padding:calc(env(safe-area-inset-top) + 26px) 22px calc(env(safe-area-inset-bottom) + 34px);
+}
+header{text-align:center;margin-bottom:4px}
+header h1{
+  font-family:var(--serif);font-weight:500;font-size:2rem;
+  letter-spacing:.01em;
+}
+header .fecha{
+  color:var(--ink-soft);font-size:.8rem;margin-top:4px;
+  text-transform:capitalize;letter-spacing:.08em;
+}
+.counter{
+  display:inline-block;margin-top:12px;font-size:.78rem;font-weight:600;
+  color:var(--ink-soft);border:1px solid var(--card-border);
+  border-radius:999px;padding:5px 14px;letter-spacing:.03em;
+}
+.counter b{color:var(--acc);font-weight:700}
+.counter::before{content:"✦ ";color:var(--acc);font-size:.7rem}
+
+/* ---------- sobre ---------- */
+.envelope-wrap{text-align:center;padding:36px 0 6px;position:relative}
+.env-emoji{
+  display:inline-block;font-size:4.4rem;line-height:1;cursor:pointer;
+  transition:transform .18s ease;
+  filter:drop-shadow(0 6px 14px rgba(0,0,0,.35));
+  animation:flotar 3.4s ease-in-out infinite;
+}
+.env-emoji:active{transform:scale(.92)}
+@keyframes flotar{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-6px)}
+}
+.spark{
+  position:absolute;color:var(--acc);font-size:.65rem;opacity:.55;
+  animation:tw 3.4s ease-in-out infinite;
+}
+.hint{
+  color:var(--ink-soft);font-size:.82rem;margin-top:12px;
+  font-family:var(--serif);font-style:italic;font-size:.95rem;
+}
+@keyframes unfold{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- carta (siempre papel) ---------- */
+.letter{
+  display:none;position:relative;
+  background:var(--paper);color:var(--paper-ink);
+  border-radius:14px;padding:26px 24px 22px;margin-top:20px;
+  box-shadow:0 14px 34px rgba(0,0,0,.35);
+  animation:unfold .35s ease;
+}
+.letter::before{
+  content:"";position:absolute;inset:7px;
+  border:1px solid rgba(46,36,24,.18);border-radius:9px;pointer-events:none;
+}
+.letter .msg{
+  font-family:var(--serif);font-style:italic;font-weight:500;
+  font-size:1.28rem;line-height:1.55;
+}
+.letter .firma{
+  margin-top:16px;font-family:var(--serif);font-size:1.02rem;
+  color:var(--paper-soft);text-align:right;
+}
+
+/* ---------- actividad ---------- */
+.act-label{
+  margin:34px 0 14px;font-size:.72rem;font-weight:700;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--ink-soft);
+  display:flex;align-items:center;gap:12px;
+}
+.act-label::before,.act-label::after{
+  content:"";flex:1;height:1px;
+  background:linear-gradient(90deg,transparent,var(--card-border));
+}
+.act-label::after{background:linear-gradient(90deg,var(--card-border),transparent)}
+.box{
+  background:var(--card);border:1px solid var(--card-border);
+  border-radius:var(--radius);padding:20px;backdrop-filter:blur(12px);
+  text-align:center;
+}
+
+/* video */
+.video-box{padding:0;overflow:hidden;text-align:left}
+.video-box iframe{width:100%;aspect-ratio:16/9;border:none;display:block}
+.video-box p{
+  padding:13px 18px;font-family:var(--serif);font-style:italic;
+  font-size:1.08rem;
+}
+
+/* ahorcado */
+#gallows{margin:2px auto 4px;display:block}
+#gallows line,#gallows circle{stroke:var(--ink);stroke-width:2.5;fill:none;stroke-linecap:round}
+#gallows .part{visibility:hidden}
+.word{
+  font-family:var(--serif);letter-spacing:.34em;font-size:1.8rem;
+  font-weight:600;margin:12px 0 16px;
+}
+.kbd{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.kbd button{
+  width:33px;height:40px;border:1px solid var(--card-border);border-radius:9px;
+  background:var(--key);color:var(--ink);
+  font-family:var(--sans);font-weight:600;font-size:.95rem;cursor:pointer;
+  transition:opacity .15s ease;
+}
+.kbd button:disabled{opacity:.2}
+.result{font-weight:600;margin-top:14px;min-height:1.3em;font-size:1rem;font-family:var(--serif);font-style:italic}
+.result.ok{color:#8BC79A}
+.result.bad{color:#DB8A7C}
+.btn{
+  border:none;background:var(--acc);color:#241A08;
+  font-family:var(--sans);font-weight:700;font-size:.88rem;
+  padding:11px 24px;border-radius:12px;margin-top:14px;cursor:pointer;
+  letter-spacing:.02em;
+}
+.btn:active{filter:brightness(.88)}
+
+/* sopa */
+#sopaGrid{display:grid;gap:3px;justify-content:center;margin:6px auto}
+#sopaGrid div{
+  width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+  background:var(--key);border:1px solid var(--card-border);border-radius:7px;
+  font-weight:600;font-size:.92rem;cursor:pointer;
+}
+#sopaGrid div.sel{background:var(--acc);color:#241A08;border-color:var(--acc)}
+#sopaGrid div.found{background:rgba(139,199,154,.22);border-color:rgba(139,199,154,.55)}
+.sopa-words{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px}
+.sopa-words span{
+  border:1px solid var(--card-border);border-radius:999px;padding:4px 13px;
+  font-weight:600;font-size:.78rem;color:var(--ink-soft);letter-spacing:.05em;
+}
+.sopa-words span.done{text-decoration:line-through;opacity:.35}
+.note{
+  font-size:.92rem;color:var(--ink-soft);margin-bottom:10px;
+  font-family:var(--serif);font-style:italic;
+}
+
+/* carta sellada */
+.letter.sellada .msg{
+  font-size:1.05rem;text-align:center;padding:8px 0;
+}
+.letter.sellada .firma{display:none}
+.sello-icon{font-size:1.6rem;color:var(--acc);text-align:center;margin-bottom:6px}
+
+/* trivia */
+.trivia-q{font-family:var(--serif);font-style:italic;font-size:1.15rem;margin-bottom:14px;line-height:1.4}
+.trivia-op{
+  display:block;width:100%;margin:8px 0;padding:12px 14px;
+  border:1px solid var(--card-border);border-radius:12px;background:var(--key);
+  color:var(--ink);font-family:var(--sans);font-weight:600;font-size:.95rem;
+  cursor:pointer;text-align:left;
+}
+.trivia-op:disabled{opacity:.45}
+.trivia-op.ok{background:rgba(139,199,154,.25);border-color:rgba(139,199,154,.6);opacity:1}
+.trivia-op.bad{background:rgba(219,138,124,.22);border-color:rgba(219,138,124,.55);opacity:1}
+
+/* cupón */
+.cupon{
+  border:1.5px dashed var(--acc);border-radius:14px;padding:20px 16px;
+  margin:4px 2px;position:relative;
+}
+.cupon .tag{
+  font-size:.68rem;font-weight:700;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--acc);margin-bottom:8px;
+}
+.cupon .txt{font-family:var(--serif);font-style:italic;font-size:1.25rem;line-height:1.4}
+.cupon .canjeado{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-12deg);
+  border:2px solid #8BC79A;color:#8BC79A;border-radius:8px;
+  padding:4px 14px;font-weight:800;letter-spacing:.14em;font-size:.9rem;
+  background:rgba(0,0,0,.25);backdrop-filter:blur(2px);
+}
+
+/* foto polaroid */
+.polaroid{
+  background:var(--paper);padding:12px 12px 16px;border-radius:6px;
+  box-shadow:0 12px 30px rgba(0,0,0,.35);max-width:320px;margin:4px auto;
+  transform:rotate(-1.5deg);
+}
+.polaroid img{width:100%;border-radius:3px;display:block}
+.polaroid p{
+  font-family:var(--serif);font-style:italic;color:var(--paper-ink);
+  font-size:1.05rem;margin-top:10px;
+}
+
+/* misión */
+.mision-txt{font-family:var(--serif);font-style:italic;font-size:1.18rem;line-height:1.5;margin-bottom:6px}
+
+/* confetti de estrellas */
+.confetti-star{
+  position:fixed;top:-24px;z-index:99;pointer-events:none;
+  color:var(--acc);animation:caer linear forwards;
+}
+@keyframes caer{
+  to{transform:translateY(110vh) rotate(540deg);opacity:0}
+}
+
+/* modo fiesta (días especiales) */
+body.fiesta header h1{color:var(--acc)}
+body.fiesta .counter{border-color:var(--acc-soft)}
+.fiesta-badge{
+  display:inline-block;margin-top:10px;color:var(--acc);
+  font-family:var(--serif);font-style:italic;font-size:1rem;
+  animation:tw 2.8s ease-in-out infinite;
+}
+</style>
+</head>
+<body>
+<div id="sky"></div>
+<div id="app">
+
+  <header>
+    <h1 id="saludo"></h1>
+    <div class="fecha" id="fecha"></div>
+    <div>
+      <span class="counter" id="counter" style="display:none"><b id="dias"></b>&nbsp;días juntos</span>
+      <span class="counter" id="countdown" style="display:none"></span>
+    </div>
+    <div class="fiesta-badge" id="fiestaBadge" style="display:none">✦ hoy es un día especial ✦</div>
+  </header>
+
+  <div class="envelope-wrap" id="envWrap">
+    <div id="envelope" class="env-emoji" role="button" aria-label="Abrir mensaje del día">✉️</div>
+    <p class="hint">tocá el sobre y leé lo de hoy</p>
+  </div>
+
+  <div class="letter" id="letter">
+    <div class="msg" id="letterMsg"></div>
+    <div class="firma" id="letterFirma"></div>
+  </div>
+
+  <div class="act-label" id="actLabel" style="display:none">Hoy toca</div>
+  <div id="actividad"></div>
+
+</div>
+
+<script>
+/* ---------- utilidades ---------- */
+function fechaHoy(){
+  const d=new Date();
+  const p=n=>String(n).padStart(2,"0");
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
+}
+function ytId(url){
+  if(!url) return "";
+  if(/^[\w-]{11}$/.test(url)) return url;
+  const m=url.match(/(?:v=|youtu\.be\/|shorts\/|embed\/)([\w-]{11})/);
+  return m ? m[1] : "";
+}
+function luminancia(hex){
+  const h=hex.replace("#","");
+  const f=h.length===3 ? h.split("").map(c=>c+c).join("") : h;
+  const n=parseInt(f,16);
+  return (0.299*((n>>16)&255)+0.587*((n>>8)&255)+0.114*(n&255))/255;
+}
+
+/* ---------- fondo, tema y cielo ---------- */
+(function(){
+  const f=CONFIG.fondo||{};
+  let claro=true;
+  if(f.imagen){
+    document.body.style.backgroundImage=`url("${f.imagen}")`;
+    document.body.classList.add("with-image");
+    claro = f.textoClaro!==false;
+  } else {
+    const col=f.color||"#171310";
+    document.body.style.backgroundColor=col;
+    claro = luminancia(col) < 0.55;
+    if(f.estrellas!==false){
+      const sky=document.getElementById("sky");
+      for(let i=0;i<16;i++){
+        const s=document.createElement("span");
+        s.className="st";
+        const size=(Math.random()*1.6+1).toFixed(1);
+        s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;`+
+          `width:${size}px;height:${size}px;animation-delay:${(Math.random()*4).toFixed(1)}s;`+
+          `animation-duration:${(3+Math.random()*3).toFixed(1)}s`;
+        sky.appendChild(s);
+      }
+    }
+  }
+  if(!claro) document.body.classList.add("light-text-off");
+})();
+
+/* ---------- encabezado ---------- */
+document.getElementById("fecha").textContent =
+  new Date().toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"});
+
+if(CONFIG.aniversario){
+  const dias=Math.max(0,Math.floor((new Date() - new Date(CONFIG.aniversario+"T00:00:00"))/86400000));
+  document.getElementById("dias").textContent=dias;
+  document.getElementById("counter").style.display="inline-block";
+}
+
+/* ---------- memoria local (recuerda cupones y sellos) ---------- */
+function guardar(k,v){ try{ localStorage.setItem("pv-"+k,v); }catch(e){} }
+function leer(k){ try{ return localStorage.getItem("pv-"+k); }catch(e){ return null; } }
+
+/* ---------- día actual ---------- */
+const diaHoy = CONFIG.dias[fechaHoy()] || CONFIG.porDefecto;
+document.getElementById("saludo").textContent = "Hola, " + (diaHoy.nombre || CONFIG.nombre);
+document.getElementById("letterFirma").textContent = diaHoy.firma || CONFIG.firma || "— para vos";
+
+const act=diaHoy.actividad;
+const puedeSellar = act && ["ahorcado","sopa","trivia"].includes(act.tipo);
+let sellado = diaHoy.sellado===true && puedeSellar && leer("sello-"+fechaHoy())!=="abierto";
+
+function pintarCarta(){
+  const l=document.getElementById("letter");
+  if(sellado){
+    l.classList.add("sellada");
+    document.getElementById("letterMsg").innerHTML =
+      '<div class="sello-icon">✦</div>El mensaje de hoy está sellado.<br>Ganá el juego de acá abajo para abrirlo.';
+  } else {
+    l.classList.remove("sellada");
+    document.getElementById("letterMsg").textContent = diaHoy.mensaje;
+  }
+}
+pintarCarta();
+
+document.getElementById("envelope").addEventListener("click",()=>{
+  const l=document.getElementById("letter");
+  l.style.display = l.style.display==="block" ? "none" : "block";
+});
+
+/* ---------- cuenta regresiva ---------- */
+(function(){
+  const ev=CONFIG.proximoEvento;
+  if(!ev || !ev.fecha) return;
+  const n=Math.ceil((new Date(ev.fecha+"T00:00:00") - new Date())/86400000);
+  if(n<0) return;
+  const cd=document.getElementById("countdown");
+  cd.textContent = n===0 ? "¡hoy es el día!" :
+    n===1 ? `falta 1 día ${ev.texto||""}` : `faltan ${n} días ${ev.texto||""}`;
+  cd.style.display="inline-block";
+})();
+
+/* ---------- día especial ---------- */
+(function(){
+  const mmdd=fechaHoy().slice(5);
+  const esp=new Set(CONFIG.diasEspeciales||[]);
+  if(CONFIG.aniversario) esp.add(CONFIG.aniversario.slice(5));
+  if(!esp.has(mmdd)) return;
+  document.body.classList.add("fiesta");
+  document.getElementById("fiestaBadge").style.display="inline-block";
+  const sky=document.getElementById("sky");
+  if(sky && !document.body.classList.contains("with-image")){
+    for(let i=0;i<26;i++){
+      const s=document.createElement("span");
+      s.className="st";
+      const size=(Math.random()*1.8+1).toFixed(1);
+      s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;`+
+        `width:${size}px;height:${size}px;background:#E4B75B;`+
+        `animation-delay:${(Math.random()*4).toFixed(1)}s;`+
+        `animation-duration:${(2.5+Math.random()*3).toFixed(1)}s`;
+      sky.appendChild(s);
+    }
+  }
+})();
+
+/* ---------- celebración (confetti + desbloqueo) ---------- */
+function confetti(){
+  for(let i=0;i<32;i++){
+    const s=document.createElement("span");
+    s.className="confetti-star";
+    s.textContent=Math.random()<0.5?"✦":"★";
+    s.style.left=(Math.random()*100)+"%";
+    s.style.fontSize=(10+Math.random()*14)+"px";
+    s.style.animationDuration=(1.6+Math.random()*2.2)+"s";
+    s.style.animationDelay=(Math.random()*0.7)+"s";
+    document.body.appendChild(s);
+    setTimeout(()=>s.remove(),5200);
+  }
+}
+function celebrar(){
+  confetti();
+  if(sellado){
+    sellado=false;
+    guardar("sello-"+fechaHoy(),"abierto");
+    pintarCarta();
+    document.getElementById("letter").style.display="block";
+    document.getElementById("letter").scrollIntoView({behavior:"smooth",block:"center"});
+  }
+}
+
+/* ---------- actividad del día ---------- */
+const cont=document.getElementById("actividad");
+if(act && act.tipo){
+  document.getElementById("actLabel").style.display="flex";
+  if(act.tipo==="video") montarVideo(act);
+  if(act.tipo==="ahorcado") montarAhorcado(act.palabra);
+  if(act.tipo==="sopa") montarSopa(act.palabras);
+  if(act.tipo==="trivia") montarTrivia(act);
+  if(act.tipo==="cupon") montarCupon(act);
+  if(act.tipo==="foto") montarFoto(act);
+  if(act.tipo==="mision") montarMision(act);
+}
+
+/* ===== trivia ===== */
+function montarTrivia(a){
+  const ops=(a.opciones||[]).map((o,i)=>
+    `<button class="trivia-op" data-i="${i+1}">${o}</button>`).join("");
+  cont.innerHTML=`
+    <div class="box" style="text-align:left">
+      <div class="trivia-q">${a.pregunta||""}</div>
+      ${ops}
+      <div class="result" id="trResult" style="text-align:center"></div>
+    </div>`;
+  const correcta=parseInt(a.respuesta,10);
+  document.querySelectorAll(".trivia-op").forEach(b=>{
+    b.addEventListener("click",()=>{
+      document.querySelectorAll(".trivia-op").forEach(x=>x.disabled=true);
+      const i=parseInt(b.dataset.i,10);
+      const r=document.getElementById("trResult");
+      const bOk=document.querySelector(`.trivia-op[data-i="${correcta}"]`);
+      if(bOk) bOk.classList.add("ok");
+      if(i===correcta){
+        r.textContent=a.acierto||"¡Correcto!";
+        r.className="result ok";
+        celebrar();
+      } else {
+        b.classList.add("bad");
+        r.textContent=a.error||"Mmm… no.";
+        r.className="result bad";
+      }
+    });
+  });
+}
+
+/* ===== cupón ===== */
+function montarCupon(a){
+  const usado = leer("cupon-"+fechaHoy())==="si";
+  cont.innerHTML=`
+    <div class="box">
+      <div class="cupon">
+        <div class="tag">✦ Cupón de amor ✦</div>
+        <div class="txt">${a.texto||""}</div>
+        ${usado?'<div class="canjeado">CANJEADO</div>':""}
+      </div>
+      <button class="btn" id="cuponBtn" ${usado?"disabled style='opacity:.4'":""}>
+        ${usado?"Ya canjeado":"Canjear"}
+      </button>
+      <div class="result" id="cuponMsg">${usado?"":""}</div>
+    </div>`;
+  const btn=document.getElementById("cuponBtn");
+  if(!usado) btn.addEventListener("click",()=>{
+    guardar("cupon-"+fechaHoy(),"si");
+    confetti();
+    montarCupon(a);
+    document.getElementById("cuponMsg").textContent="Listo: sacale captura y mandámela para cobrarlo.";
+    document.getElementById("cuponMsg").className="result ok";
+  });
+}
+
+/* ===== foto ===== */
+function montarFoto(a){
+  cont.innerHTML=`
+    <div class="box">
+      <div class="polaroid">
+        <img src="${a.archivo||""}" alt="foto"
+             onerror="this.parentElement.innerHTML='<p style=&quot;padding:30px 10px&quot;>No encontré la foto <b>${a.archivo||""}</b>. ¿Está subida al repositorio?</p>'">
+        <p>${a.texto||""}</p>
+      </div>
+    </div>`;
+}
+
+/* ===== misión ===== */
+function montarMision(a){
+  const hecha = leer("mision-"+fechaHoy())==="si";
+  cont.innerHTML=`
+    <div class="box">
+      <div class="tag" style="font-size:.68rem;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--acc);margin-bottom:10px">✦ Misión del día ✦</div>
+      <div class="mision-txt">${a.texto||""}</div>
+      <button class="btn" id="misionBtn" ${hecha?"disabled style='opacity:.4'":""}>
+        ${hecha?"Misión cumplida ✔":"Misión cumplida"}
+      </button>
+    </div>`;
+  if(!hecha) document.getElementById("misionBtn").addEventListener("click",()=>{
+    guardar("mision-"+fechaHoy(),"si");
+    confetti();
+    montarMision(a);
+  });
+}
+
+/* ===== video ===== */
+function montarVideo(a){
+  const id=ytId(a.url);
+  cont.innerHTML = id
+    ? `<div class="box video-box">
+         <iframe src="https://www.youtube.com/embed/${id}" allowfullscreen loading="lazy"></iframe>
+         ${a.titulo ? `<p>${a.titulo}</p>` : ""}
+       </div>`
+    : `<div class="box"><p class="note">El link del video no es válido.</p></div>`;
+}
+
+/* ===== ahorcado clásico ===== */
+function montarAhorcado(palabra){
+  const P=(palabra||"SORPRESA").toUpperCase();
+  cont.innerHTML=`
+    <div class="box">
+      <svg id="gallows" width="150" height="160" viewBox="0 0 150 160">
+        <line x1="15" y1="150" x2="95" y2="150"/>
+        <line x1="40" y1="150" x2="40" y2="15"/>
+        <line x1="40" y1="15" x2="105" y2="15"/>
+        <line x1="105" y1="15" x2="105" y2="35"/>
+        <circle class="part" id="p0" cx="105" cy="49" r="14"/>
+        <line class="part" id="p1" x1="105" y1="63" x2="105" y2="105"/>
+        <line class="part" id="p2" x1="105" y1="73" x2="85"  y2="92"/>
+        <line class="part" id="p3" x1="105" y1="73" x2="125" y2="92"/>
+        <line class="part" id="p4" x1="105" y1="105" x2="88"  y2="130"/>
+        <line class="part" id="p5" x1="105" y1="105" x2="122" y2="130"/>
+      </svg>
+      <div class="word" id="ahorWord"></div>
+      <div class="kbd" id="ahorKbd"></div>
+      <div class="result" id="ahorResult"></div>
+      <button class="btn" id="ahorRetry" style="display:none">Reintentar</button>
+    </div>`;
+  let ok=new Set(), err=0, fin=false;
+  const pintar=()=>{
+    document.getElementById("ahorWord").textContent =
+      P.split("").map(l=>ok.has(l)?l:"_").join(" ");
+  };
+  const terminar=(win)=>{
+    fin=true;
+    document.querySelectorAll("#ahorKbd button").forEach(b=>b.disabled=true);
+    const r=document.getElementById("ahorResult");
+    r.textContent = win ? "La sacaste. Bien ahí." : "Nada… era: "+P;
+    r.className = "result "+(win?"ok":"bad");
+    if(win) celebrar();
+    if(!win) document.getElementById("ahorRetry").style.display="inline-block";
+  };
+  const kbd=document.getElementById("ahorKbd");
+  "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split("").forEach(L=>{
+    const b=document.createElement("button");
+    b.textContent=L;
+    b.addEventListener("click",()=>{
+      if(fin) return;
+      b.disabled=true;
+      if(P.includes(L)){
+        ok.add(L); pintar();
+        if(P.split("").every(l=>ok.has(l))) terminar(true);
+      } else {
+        document.getElementById("p"+err).style.visibility="visible";
+        err++;
+        if(err>=6) terminar(false);
+      }
+    });
+    kbd.appendChild(b);
+  });
+  document.getElementById("ahorRetry").addEventListener("click",()=>montarAhorcado(P));
+  pintar();
+}
+
+/* ===== sopa de letras ===== */
+function montarSopa(palabras){
+  // normalizar: mayúsculas, sin acentos, solo letras
+  const limpiar=w=>w.toUpperCase()
+    .normalize("NFD").replace(/[\u0300-\u0302\u0308]/g,"")
+    .replace(/[^A-ZÑ]/g,"");
+  let words=[...new Set((palabras||["EJEMPLO"]).map(limpiar).filter(w=>w.length>1))];
+
+  // tamaño de grilla según la palabra más larga (9 a 12); >12 se descarta
+  words=words.filter(w=>w.length<=12);
+  const SN=Math.max(9, Math.min(12, ...[12], Math.max(...words.map(w=>w.length), 9)));
+  const dirs=[[1,0],[0,1],[1,1],[-1,1]];
+
+  // generar la grilla hasta que TODAS las palabras queden colocadas
+  function generar(){
+    const grid=Array.from({length:SN},()=>Array(SN).fill(""));
+    const orden=[...words].sort((a,b)=>b.length-a.length);
+    for(const w of orden){
+      let puesta=false;
+      for(let t=0;t<600 && !puesta;t++){
+        const [dx,dy]=dirs[Math.floor(Math.random()*dirs.length)];
+        const x0=Math.floor(Math.random()*SN), y0=Math.floor(Math.random()*SN);
+        const xe=x0+dx*(w.length-1), ye=y0+dy*(w.length-1);
+        if(xe<0||xe>=SN||ye<0||ye>=SN) continue;
+        let ok=true;
+        for(let i=0;i<w.length;i++){
+          const c=grid[y0+dy*i][x0+dx*i];
+          if(c!=="" && c!==w[i]){ok=false;break;}
+        }
+        if(!ok) continue;
+        for(let i=0;i<w.length;i++) grid[y0+dy*i][x0+dx*i]=w[i];
+        puesta=true;
+      }
+      if(!puesta) return null; // no entró: rehacer toda la grilla
+    }
+    return grid;
+  }
+  let grid=null;
+  for(let i=0;i<40 && !grid;i++) grid=generar();
+  if(!grid && words.length>1){
+    // caso extremo: sacar la palabra más larga y reintentar
+    words.sort((a,b)=>a.length-b.length).pop();
+    for(let i=0;i<40 && !grid;i++) grid=generar();
+  }
+  if(!grid){
+    cont.innerHTML=`<div class="box"><p class="note">No pude armar la sopa con esas palabras. Probá con menos o más cortas.</p></div>`;
+    return;
+  }
+
+  const cell = SN<=9 ? 32 : 26;
+  cont.innerHTML=`
+    <div class="box">
+      <p class="note">tocá la primera y la última letra de cada palabra</p>
+      <div id="sopaGrid"></div>
+      <div class="sopa-words" id="sopaWords"></div>
+      <div class="result" id="sopaResult"></div>
+    </div>`;
+  const AB="ABCDEFGHIJLMNOPRSTUV";
+  for(let y=0;y<SN;y++)for(let x=0;x<SN;x++)
+    if(grid[y][x]==="") grid[y][x]=AB[Math.floor(Math.random()*AB.length)];
+
+  const g=document.getElementById("sopaGrid");
+  g.style.gridTemplateColumns=`repeat(${SN},${cell}px)`;
+  let start=null, found=new Set();
+  const cellEl=(x,y)=>g.querySelector(`div[data-x="${x}"][data-y="${y}"]`);
+  for(let y=0;y<SN;y++)for(let x=0;x<SN;x++){
+    const d=document.createElement("div");
+    d.textContent=grid[y][x]; d.dataset.x=x; d.dataset.y=y;
+    d.style.width=cell+"px"; d.style.height=cell+"px";
+    d.addEventListener("click",()=>{
+      if(!start){ start={x,y,el:d}; d.classList.add("sel"); return; }
+      start.el.classList.remove("sel");
+      const {x:x0,y:y0}=start; start=null;
+      const dx=Math.sign(x-x0), dy=Math.sign(y-y0);
+      const len=Math.max(Math.abs(x-x0),Math.abs(y-y0))+1;
+      const aligned=(x0===x)||(y0===y)||(Math.abs(x-x0)===Math.abs(y-y0));
+      if(!aligned) return;
+      let cells=[], str="";
+      for(let i=0;i<len;i++){
+        const cx=x0+dx*i, cy=y0+dy*i;
+        cells.push([cx,cy]); str+=grid[cy][cx];
+      }
+      const rev=str.split("").reverse().join("");
+      const hit=words.find(w=>(w===str||w===rev)&&!found.has(w));
+      if(hit){
+        found.add(hit);
+        cells.forEach(([cx,cy])=>cellEl(cx,cy).classList.add("found"));
+        document.getElementById("sw-"+hit).classList.add("done");
+        if(found.size===words.length){
+          const r=document.getElementById("sopaResult");
+          r.textContent="Las encontraste todas.";
+          r.className="result ok";
+          celebrar();
+        }
+      }
+    });
+    g.appendChild(d);
+  }
+  const wl=document.getElementById("sopaWords");
+  words.forEach(w=>{
+    const s=document.createElement("span");
+    s.textContent=w; s.id="sw-"+w;
+    wl.appendChild(s);
+  });
+}
+</script>
+</body>
+</html>
