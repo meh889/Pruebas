@@ -58,14 +58,21 @@ const CONFIG = {
        { tipo: "foto",     archivo: "nombre.jpg", texto: "epígrafe" }
                            (subí la foto al mismo repositorio)
        { tipo: "mision",   texto: "mandame un audio cantando..." }
+       { tipo: "memoria",  emojis: ["⭐","🎬","🍕","🌙","👻","🐨"] }
+                           (memotest: 4 a 8 emojis, se duplican solos)
+       { tipo: "ruleta",   titulo: "¿Qué gano hoy?",
+         opciones: ["Helado","Peli","Masaje","Vos elegís"] }
+                           (2 a 6 opciones; gira una sola vez por día)
+       { tipo: "rascar",   premio: "texto escondido que aparece al rascar" }
 
      OPCIONALES por día:
-       nombre: "..."   -> cómo la saludás ese día
-       firma: "..."    -> cómo firmás ese día
-       sellado: true   -> la carta queda sellada hasta que gane el
-                          juego del día (solo ahorcado, sopa o trivia)
-
-     Si un día no está en la lista, se usa "porDefecto".
+       nombre: "..."     -> cómo la saludás ese día
+       firma: "..."      -> cómo firmás ese día
+       sellado: true     -> la carta queda sellada hasta completar el
+                            juego del día (todos menos video/foto/cupon/mision)
+       escribir: true    -> la carta se escribe sola, letra por letra
+       tema: { fondo: "#hex", acento: "#hex" }
+                         -> ese día TODA la app cambia de colores
      ---------------------------------------------------------- */
   porDefecto: {
     mensaje: "Hoy no dejé nada programado, pero igual pensé en vos.",
@@ -81,7 +88,7 @@ const CONFIG = {
 
   // Días especiales (formato "MM-DD"): la app se pone de fiesta,
   // con más estrellas y todo dorado. El aniversario se agrega solo.
-  diasEspeciales: ["08-03"],
+  diasEspeciales: ["08-14"],
 
   dias: {
     "2026-07-30": {
@@ -95,14 +102,169 @@ const CONFIG = {
        actividad: { tipo: "ahorcado", palabra: "AVATAR" }
 
     },
-  
-    "2026-08-03": {
-      mensaje: "Encontré esta foto y me quedé un rato mirándola.",
-      actividad: { tipo: "foto", archivo: "IMG_3948.jpeg", texto: "Mi lugar favorito sos vos" }
+    "2026-08-01": {
+      sellado: true,
+      mensaje: "Ayer Avatar y hoy Spiderman! Me gusta esta semana de tantos dias juntitos",
+      actividad: { tipo: "trivia",
+        pregunta: "¿Dónde fuimos por primera vez al cine?",
+        opciones: ["Unicenter", "Dot", "Norcenter"],
+        respuesta: 1,
+        acierto: "Que peliculon Your Name",
+        error: "Mati tite" }
     },
     "2026-08-02": {
+      mensaje: "Una fotito de hace 2 años <3.",
+      actividad: { tipo: "foto", archivo: "IMG_3948.jpeg", texto: "Que aventura ese día, gracias por acompañarme en las locuras que se me ocurren." }
+    },
+    
+    "2026-08-04": {
       mensaje: "Hoy tenés tarea.",
-     actividad: { tipo: "sopa",     palabras: ["STITCH","PEQUE"] }
+      actividad: { tipo: "mision", texto: "Mandame un audio cantando el estribillo de nuestra canción. Sin vergüenza." }
+    },
+
+    /* ===== agosto armado: editá los textos a tu gusto ===== */
+
+    "2026-08-05": {
+      sellado: true,
+      mensaje: "¿Viste? La app aprende juegos nuevos. Vos también tenés buena memoria… sobre todo para acordarte de todo lo que hago mal, jaja. Te amo.",
+      actividad: { tipo: "memoria", emojis: ["⭐","🎬","🍕","🌙","👻","🐨"] }
+    },
+    "2026-08-06": {
+      sellado: true,
+      mensaje: "No hay plan grande hoy, pero hay esto: yo, vos, y las ganas de estar así siempre.",
+      actividad: { tipo: "ahorcado", palabra: "JUNTITOS" }
+    },
+    "2026-08-07": {
+      mensaje: "Encontré este video y me acordé de vos al instante. Miralo con auriculares.",
+      // CAMBIÁ este link por el video que quieras mostrarle
+      actividad: { tipo: "video", url: "https://www.youtube.com/watch?v=kJQP7kiw5Fk", titulo: "Para vos" }
+    },
+    "2026-08-08": {
+      mensaje: "Hoy la app viene con premio escondido. Usá el dedo, como los raspaditas del kiosco.",
+      actividad: { tipo: "rascar", premio: "🍦 Vale por un helado de los grandes. Pago yo, elegís vos." }
+    },
+    "2026-08-09": {
+      mensaje: "Domingo. Día internacional de no hacer nada, pero juntos.",
+      actividad: { tipo: "sopa", palabras: ["DOMINGO","MIMOS","SIESTA","PELI","MATE"] }
+    },
+    "2026-08-10": {
+      mensaje: "Arranca la semana. Que sepas que sos mi parte favorita de todas las semanas.",
+      // Editá esta trivia con algo real de ustedes si querés
+      actividad: { tipo: "trivia",
+        pregunta: "¿Qué es lo primero que pienso al despertarme?",
+        opciones: ["El desayuno", "Que quiero dormir más", "En vos (obvio)"],
+        respuesta: 3,
+        acierto: "Correcto. Todos los días.",
+        error: "Bueno, también… pero la respuesta era la 3." }
+    },
+    "2026-08-11": {
+      escribir: true,
+      mensaje: "Esta carta se escribe sola porque yo al lado tuyo también me quedo sin palabras. Bueno, no tanto: acá va un cupón.",
+      actividad: { tipo: "cupon", texto: "Válido por una merienda rica, la traigo yo hasta donde estés" }
+    },
+    "2026-08-12": {
+      sellado: true,
+      mensaje: "Nivel difícil hoy. Si lo sacás, oficialmente tenés mejor memoria que yo (ya lo sabíamos).",
+      actividad: { tipo: "memoria", emojis: ["⭐","🎬","🍕","🌙","👻","🐨","🎡","🍿"] }
+    },
+    "2026-08-13": {
+      sellado: true,
+      mensaje: "Pista: mañana la app se pone linda. Más linda. Vos venite igual que siempre, que ya alcanza.",
+      actividad: { tipo: "ahorcado", palabra: "MANANA" }
+    },
+    "2026-08-03": {
+      nombre: "Peque",
+      tema: { fondo: "#1A1206", acento: "#F2C14E" },
+      mensaje: "Hoy es un día especial y la app lo sabe: se vistió de gala. Girá la ruleta, lo que salga se cumple. Palabra.",
+      actividad: { tipo: "ruleta", titulo: "Girá y cobrá",
+        opciones: ["Cena afuera 🍝", "Peli + pochoclos 🍿", "Día de mimos 💆", "Sorpresa mía 🎁"] }
+    },
+    "2026-08-15": {
+      mensaje: "Después del festejo de ayer, una foto para el recuerdo.",
+      // Subí una foto al repositorio y poné acá el nombre exacto del archivo
+      actividad: { tipo: "foto", archivo: "foto1508.jpeg", texto: "Nosotros, siendo nosotros" }
+    },
+    "2026-08-16": {
+      mensaje: "Domingo de desafíos importantes.",
+      actividad: { tipo: "mision", texto: "Mandame tu mejor selfie con cara de Stitch. Se evalúa compromiso actoral." }
+    },
+    "2026-08-17": {
+      tema: { fondo: "#2A1420", acento: "#F08CB0" },
+      mensaje: "Hoy la app amaneció rosa. No sé, se ve que también está enamorada.",
+      actividad: { tipo: "trivia",
+        pregunta: "¿Cuál es mi comida favorita que hacés vos?",
+        opciones: ["Todo me gusta", "Todo me encanta", "No sé elegir"],
+        respuesta: 1,
+        acierto: "Trampa: eran todas correctas.",
+        error: "Trampa: eran todas correctas igual." }
+    },
+    "2026-08-18": {
+      sellado: true,
+      mensaje: "Encontraste las palabras. Yo hace rato que encontré a la persona.",
+      actividad: { tipo: "sopa", palabras: ["ESTRELLA","CINE","ABRAZO","VIAJE","RISAS"] }
+    },
+    "2026-08-19": {
+      mensaje: "Rascá despacito que abajo hay data importante.",
+      actividad: { tipo: "rascar", premio: "TE AMO ×2984 (uno por cada día juntos, el número sigue subiendo)" }
+    },
+    "2026-08-20": {
+      sellado: true,
+      mensaje: "Sos eso: lo que brilla aunque el día esté nublado.",
+      actividad: { tipo: "ahorcado", palabra: "ESTRELLITA" }
+    },
+    "2026-08-21": {
+      mensaje: "Viernes. La ruleta decide el plan del finde y no se discute (salvo que quieras discutirlo, en ese caso vos ganás).",
+      actividad: { tipo: "ruleta", titulo: "Plan del finde",
+        opciones: ["Maratón de series 📺", "Salir a caminar 🚶", "Cocinar juntos 🍳", "Vos elegís 👑"] }
+    },
+    "2026-08-22": {
+      mensaje: "Sábado de video. Este me hizo reír y necesitaba que lo veas.",
+      // CAMBIÁ este link por el video que quieras
+      actividad: { tipo: "video", url: "https://www.youtube.com/watch?v=kJQP7kiw5Fk", titulo: "Mirá esto y decime que no somos nosotros" }
+    },
+    "2026-08-23": {
+      sellado: true,
+      mensaje: "Ganaste de nuevo. Empiezo a sospechar que sos más inteligente que yo. Confirmado, en realidad.",
+      actividad: { tipo: "memoria", emojis: ["🌟","🎠","🧸","🎈","🍓","🌈"] }
+    },
+    "2026-08-24": {
+      mensaje: "Lunes. Nadie merece un lunes. Tomá, para amortiguar:",
+      actividad: { tipo: "cupon", texto: "Válido por un masaje de 10 minutos sin quejarme ni una vez" }
+    },
+    "2026-08-25": {
+      tema: { fondo: "#EAF2F8", acento: "#3E7CB1" },
+      escribir: true,
+      mensaje: "Hoy la app está en modo día despejado, como me quedo yo cuando te veo. Sí, fue cursi. No lo pienso borrar.",
+      actividad: { tipo: "mision", texto: "Contame algo que nunca me hayas contado. Lo que sea. Te escucho." }
+    },
+    "2026-08-26": {
+      mensaje: "Pregunta seria hoy. Concentrate.",
+      actividad: { tipo: "trivia",
+        pregunta: "En una escala del 1 al 10, ¿cuánto te amo?",
+        opciones: ["10", "100", "No entra en la escala"],
+        respuesta: 3,
+        acierto: "Exacto. La escala quedó chica hace años.",
+        error: "Error. La escala quedó chica hace años." }
+    },
+    "2026-08-27": {
+      sellado: true,
+      mensaje: "Mañana es 28… y los 28 son nuestros. Andá calentando.",
+      actividad: { tipo: "sopa", palabras: ["VEINTIOCHO","NUESTRO","FECHA","SIEMPRE"] }
+    },
+    "2026-08-28": {
+      nombre: "mi amor",
+      mensaje: "Hoy cumplimos 99 MESES juntos. Noventa y nueve. El mes que viene son 100 y pienso hacer un escándalo. Gracias por cada uno.",
+      actividad: { tipo: "rascar", premio: "99 meses ✦ y los que faltan, que son todos" }
+    },
+    "2026-08-29": {
+      mensaje: "Sábado. Hoy el poder es tuyo.",
+      actividad: { tipo: "mision", texto: "Elegí la peli de esta noche. Poder absoluto, sin veto. Usalo con sabiduría." }
+    },
+    "2026-08-30": {
+      escribir: true,
+      sellado: true,
+      mensaje: "Se termina agosto y quería decirte esto despacio, por eso la carta se escribe sola: gracias por jugar cada día, por reírte de mis chistes malos y por ser mi persona. Septiembre viene con sorpresas nuevas. No te digo más nada.",
+      actividad: { tipo: "memoria", emojis: ["💫","🎁","🌙","⭐","🎬","🧸"] }
     }
   }
 };
@@ -273,6 +435,7 @@ header .fecha{
   letter-spacing:.02em;
 }
 .btn:active{filter:brightness(.88)}
+.btn:disabled{opacity:.4}
 
 /* sopa */
 #sopaGrid{display:grid;gap:3px;justify-content:center;margin:6px auto}
@@ -344,6 +507,59 @@ header .fecha{
 
 /* misión */
 .mision-txt{font-family:var(--serif);font-style:italic;font-size:1.18rem;line-height:1.5;margin-bottom:6px}
+
+/* memoria (memotest) */
+#memGrid{display:grid;gap:8px;justify-content:center;margin:6px auto}
+.mem-card{
+  width:64px;height:64px;border-radius:12px;cursor:pointer;
+  background:var(--key);border:1px solid var(--card-border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.7rem;color:var(--acc);
+  transition:transform .15s ease, background .2s ease;
+}
+.mem-card:active{transform:scale(.94)}
+.mem-card.flip{background:var(--card);border-color:var(--acc-soft)}
+.mem-card.done{background:rgba(139,199,154,.18);border-color:rgba(139,199,154,.5);cursor:default}
+
+/* ruleta */
+.ruleta-wrap{position:relative;width:250px;margin:10px auto 4px}
+.ruleta-pointer{
+  position:absolute;top:-6px;left:50%;transform:translateX(-50%);
+  font-size:1.4rem;color:var(--acc);z-index:2;
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));
+}
+#ruletaWheel{
+  width:250px;height:250px;border-radius:50%;
+  border:3px solid var(--acc);position:relative;overflow:hidden;
+  transition:transform 3.4s cubic-bezier(.15,.9,.22,1);
+  box-shadow:0 10px 30px rgba(0,0,0,.35);
+}
+.ruleta-label{
+  position:absolute;top:50%;left:50%;width:0;height:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.ruleta-label span{
+  display:block;white-space:nowrap;font-weight:700;font-size:.72rem;
+  color:#241A08;letter-spacing:.02em;max-width:96px;overflow:hidden;
+  text-overflow:ellipsis;
+}
+.ruleta-res{
+  font-family:var(--serif);font-style:italic;font-size:1.3rem;
+  margin-top:14px;min-height:1.5em;color:var(--acc);font-weight:600;
+}
+
+/* rascar */
+.rascar-wrap{position:relative;max-width:320px;margin:6px auto;border-radius:14px;overflow:hidden}
+.rascar-premio{
+  background:var(--paper);color:var(--paper-ink);
+  font-family:var(--serif);font-style:italic;font-size:1.25rem;line-height:1.45;
+  padding:34px 22px;border-radius:14px;
+}
+#rascarCanvas{
+  position:absolute;inset:0;width:100%;height:100%;
+  touch-action:none;cursor:crosshair;border-radius:14px;
+  transition:opacity .6s ease;
+}
 
 /* confetti de estrellas */
 .confetti-star{
@@ -451,7 +667,7 @@ if(CONFIG.aniversario){
   document.getElementById("counter").style.display="inline-block";
 }
 
-/* ---------- memoria local (recuerda cupones y sellos) ---------- */
+/* ---------- memoria local (recuerda cupones, sellos y ruletas) ---------- */
 function guardar(k,v){ try{ localStorage.setItem("pv-"+k,v); }catch(e){} }
 function leer(k){ try{ return localStorage.getItem("pv-"+k); }catch(e){ return null; } }
 
@@ -460,16 +676,33 @@ const diaHoy = CONFIG.dias[fechaHoy()] || CONFIG.porDefecto;
 document.getElementById("saludo").textContent = "Hola, " + (diaHoy.nombre || CONFIG.nombre);
 document.getElementById("letterFirma").textContent = diaHoy.firma || CONFIG.firma || "— para vos";
 
+/* tema del día: cambia colores de toda la app */
+if(diaHoy.tema){
+  const t=diaHoy.tema;
+  if(t.fondo){
+    document.body.style.backgroundColor=t.fondo;
+    document.body.style.backgroundImage="none";
+    document.body.classList.remove("with-image");
+    document.body.classList.toggle("light-text-off", luminancia(t.fondo)>=0.55);
+  }
+  if(t.acento && /^#[0-9a-fA-F]{6}$/.test(t.acento)){
+    const r=document.documentElement.style;
+    r.setProperty("--acc",t.acento);
+    r.setProperty("--acc-soft",t.acento+"59");
+  }
+}
+
 const act=diaHoy.actividad;
-const puedeSellar = act && ["ahorcado","sopa","trivia"].includes(act.tipo);
+const puedeSellar = act && ["ahorcado","sopa","trivia","memoria","ruleta","rascar"].includes(act.tipo);
 let sellado = diaHoy.sellado===true && puedeSellar && leer("sello-"+fechaHoy())!=="abierto";
+let cartaTipeada = false;
 
 function pintarCarta(){
   const l=document.getElementById("letter");
   if(sellado){
     l.classList.add("sellada");
     document.getElementById("letterMsg").innerHTML =
-      '<div class="sello-icon">✦</div>El mensaje de hoy está sellado.<br>Ganá el juego de acá abajo para abrirlo.';
+      '<div class="sello-icon">✦</div>El mensaje de hoy está sellado.<br>Completá el juego de acá abajo para abrirlo.';
   } else {
     l.classList.remove("sellada");
     document.getElementById("letterMsg").textContent = diaHoy.mensaje;
@@ -477,9 +710,25 @@ function pintarCarta(){
 }
 pintarCarta();
 
+/* carta que se escribe sola */
+function tipearCarta(){
+  if(cartaTipeada || sellado || diaHoy.escribir!==true) return;
+  cartaTipeada=true;
+  const el=document.getElementById("letterMsg");
+  const txt=diaHoy.mensaje;
+  el.textContent="";
+  let i=0;
+  const iv=setInterval(()=>{
+    el.textContent=txt.slice(0,++i);
+    if(i>=txt.length) clearInterval(iv);
+  },34);
+}
+
 document.getElementById("envelope").addEventListener("click",()=>{
   const l=document.getElementById("letter");
-  l.style.display = l.style.display==="block" ? "none" : "block";
+  const abrir = l.style.display!=="block";
+  l.style.display = abrir ? "block" : "none";
+  if(abrir) tipearCarta();
 });
 
 /* ---------- cuenta regresiva ---------- */
@@ -538,6 +787,7 @@ function celebrar(){
     guardar("sello-"+fechaHoy(),"abierto");
     pintarCarta();
     document.getElementById("letter").style.display="block";
+    tipearCarta();
     document.getElementById("letter").scrollIntoView({behavior:"smooth",block:"center"});
   }
 }
@@ -553,6 +803,182 @@ if(act && act.tipo){
   if(act.tipo==="cupon") montarCupon(act);
   if(act.tipo==="foto") montarFoto(act);
   if(act.tipo==="mision") montarMision(act);
+  if(act.tipo==="memoria") montarMemoria(act);
+  if(act.tipo==="ruleta") montarRuleta(act);
+  if(act.tipo==="rascar") montarRascar(act);
+}
+
+/* ===== memoria (memotest) ===== */
+function montarMemoria(a){
+  let emojis=(a.emojis&&a.emojis.length?a.emojis:["⭐","🎬","🍕","🌙","👻","🐨"]).slice(0,8);
+  if(emojis.length<3) emojis=["⭐","🎬","🍕","🌙"];
+  const cartas=[...emojis,...emojis].sort(()=>Math.random()-0.5);
+  const cols = cartas.length<=12 ? 4 : 4;
+  cont.innerHTML=`
+    <div class="box">
+      <p class="note">encontrá todas las parejas</p>
+      <div id="memGrid" style="grid-template-columns:repeat(${cols},64px)"></div>
+      <div class="result" id="memResult"></div>
+    </div>`;
+  const g=document.getElementById("memGrid");
+  let abierta=null, bloqueo=false, hechas=0;
+  cartas.forEach(e=>{
+    const c=document.createElement("div");
+    c.className="mem-card";
+    c.textContent="✦";
+    c.dataset.e=e;
+    c.addEventListener("click",()=>{
+      if(bloqueo||c.classList.contains("flip")||c.classList.contains("done")) return;
+      c.classList.add("flip"); c.textContent=e;
+      if(!abierta){ abierta=c; return; }
+      if(abierta.dataset.e===e){
+        abierta.classList.add("done"); c.classList.add("done");
+        abierta.classList.remove("flip"); c.classList.remove("flip");
+        abierta=null; hechas++;
+        if(hechas===emojis.length){
+          const r=document.getElementById("memResult");
+          r.textContent="Todas las parejas. Qué memoria.";
+          r.className="result ok";
+          celebrar();
+        }
+      } else {
+        bloqueo=true;
+        const prev=abierta; abierta=null;
+        setTimeout(()=>{
+          prev.classList.remove("flip"); prev.textContent="✦";
+          c.classList.remove("flip"); c.textContent="✦";
+          bloqueo=false;
+        },750);
+      }
+    });
+    g.appendChild(c);
+  });
+}
+
+/* ===== ruleta ===== */
+function montarRuleta(a){
+  const ops=(a.opciones&&a.opciones.length>=2?a.opciones:["Premio 1","Premio 2","Premio 3"]).slice(0,6);
+  const n=ops.length, seg=360/n;
+  const colores=["#E4B75B","#F0D9A6","#D9A441","#F6E7C6","#C98F2E","#EFCB84"];
+  const stops=ops.map((_,i)=>`${colores[i%colores.length]} ${i*seg}deg ${(i+1)*seg}deg`).join(",");
+  const yaKey="ruleta-"+fechaHoy();
+  const ya=leer(yaKey);
+  cont.innerHTML=`
+    <div class="box">
+      ${a.titulo?`<p class="note">${a.titulo}</p>`:""}
+      <div class="ruleta-wrap">
+        <div class="ruleta-pointer">▼</div>
+        <div id="ruletaWheel" style="background:conic-gradient(${stops})"></div>
+      </div>
+      <div class="ruleta-res" id="ruletaRes"></div>
+      <button class="btn" id="ruletaBtn">Girar</button>
+    </div>`;
+  const wheel=document.getElementById("ruletaWheel");
+  ops.forEach((o,i)=>{
+    const ang=(i+0.5)*seg;
+    const lab=document.createElement("div");
+    lab.className="ruleta-label";
+    lab.style.transform=`rotate(${ang}deg) translateY(-86px)`;
+    lab.innerHTML=`<span style="transform:rotate(${-ang}deg)">${o}</span>`;
+    wheel.appendChild(lab);
+  });
+  const btn=document.getElementById("ruletaBtn");
+  const res=document.getElementById("ruletaRes");
+  if(ya!==null){
+    const idx=parseInt(ya,10);
+    wheel.style.transition="none";
+    wheel.style.transform=`rotate(${360-(idx+0.5)*seg}deg)`;
+    res.textContent="Salió: "+ops[idx];
+    btn.disabled=true; btn.textContent="Ya girada por hoy";
+    return;
+  }
+  btn.addEventListener("click",()=>{
+    btn.disabled=true;
+    const idx=Math.floor(Math.random()*n);
+    const destino=5*360 + (360-(idx+0.5)*seg);
+    requestAnimationFrame(()=>{ wheel.style.transform=`rotate(${destino}deg)`; });
+    const fin=()=>{
+      wheel.removeEventListener("transitionend",fin);
+      res.textContent="Salió: "+ops[idx];
+      guardar(yaKey,String(idx));
+      btn.textContent="Ya girada por hoy";
+      celebrar();
+    };
+    wheel.addEventListener("transitionend",fin);
+    setTimeout(fin,3800);
+  });
+}
+
+/* ===== rascar ===== */
+function montarRascar(a){
+  const yaKey="rascar-"+fechaHoy();
+  const ya=leer(yaKey)==="si";
+  cont.innerHTML=`
+    <div class="box">
+      <p class="note">${ya?"ya lo revelaste, pero acá sigue:":"rascá con el dedo para revelar"}</p>
+      <div class="rascar-wrap">
+        <div class="rascar-premio">${a.premio||"✦"}</div>
+        ${ya?"":'<canvas id="rascarCanvas"></canvas>'}
+      </div>
+    </div>`;
+  if(ya) return;
+  const cv=document.getElementById("rascarCanvas");
+  const wrap=cv.parentElement;
+  const terminar=()=>{
+    guardar(yaKey,"si");
+    cv.style.opacity="0";
+    setTimeout(()=>cv.remove(),650);
+    confetti(); celebrar();
+  };
+  let ctx=null;
+  try{ ctx=cv.getContext("2d"); }catch(e){}
+  if(!ctx){
+    cv.remove();
+    const b=document.createElement("button");
+    b.className="btn"; b.textContent="Tocar para revelar";
+    b.addEventListener("click",()=>{ b.remove(); terminar(); });
+    wrap.parentElement.appendChild(b);
+    return;
+  }
+  requestAnimationFrame(()=>{
+    const dpr=window.devicePixelRatio||1;
+    const W=wrap.offsetWidth, H=wrap.offsetHeight;
+    cv.width=W*dpr; cv.height=H*dpr;
+    ctx.scale(dpr,dpr);
+    ctx.fillStyle="#8A7A5E";
+    ctx.fillRect(0,0,W,H);
+    ctx.fillStyle="#6E6049";
+    for(let i=0;i<40;i++) ctx.fillRect(Math.random()*W,Math.random()*H,3,3);
+    ctx.fillStyle="#F6EFE2";
+    ctx.font="600 15px "+getComputedStyle(document.body).getPropertyValue("--sans");
+    ctx.textAlign="center";
+    ctx.fillText("✦ rascá acá ✦", W/2, H/2+5);
+    let rascando=false, trazos=0, listo=false;
+    const raspar=(x,y)=>{
+      ctx.globalCompositeOperation="destination-out";
+      ctx.beginPath(); ctx.arc(x,y,17,0,Math.PI*2); ctx.fill();
+      if(++trazos%10===0 && !listo){
+        const img=ctx.getImageData(0,0,cv.width,cv.height).data;
+        let vacios=0, total=0;
+        for(let i=3;i<img.length;i+=40){ total++; if(img[i]<40) vacios++; }
+        if(vacios/total>0.45){ listo=true; terminar(); }
+      }
+    };
+    const pos=e=>{
+      const r=cv.getBoundingClientRect();
+      const t=e.touches?e.touches[0]:e;
+      return [t.clientX-r.left, t.clientY-r.top];
+    };
+    const down=e=>{ rascando=true; raspar(...pos(e)); e.preventDefault(); };
+    const move=e=>{ if(rascando){ raspar(...pos(e)); e.preventDefault(); } };
+    const up=()=>{ rascando=false; };
+    cv.addEventListener("touchstart",down,{passive:false});
+    cv.addEventListener("touchmove",move,{passive:false});
+    cv.addEventListener("touchend",up);
+    cv.addEventListener("mousedown",down);
+    cv.addEventListener("mousemove",move);
+    window.addEventListener("mouseup",up);
+  });
 }
 
 /* ===== trivia ===== */
@@ -596,10 +1022,10 @@ function montarCupon(a){
         <div class="txt">${a.texto||""}</div>
         ${usado?'<div class="canjeado">CANJEADO</div>':""}
       </div>
-      <button class="btn" id="cuponBtn" ${usado?"disabled style='opacity:.4'":""}>
+      <button class="btn" id="cuponBtn" ${usado?"disabled":""}>
         ${usado?"Ya canjeado":"Canjear"}
       </button>
-      <div class="result" id="cuponMsg">${usado?"":""}</div>
+      <div class="result" id="cuponMsg"></div>
     </div>`;
   const btn=document.getElementById("cuponBtn");
   if(!usado) btn.addEventListener("click",()=>{
@@ -630,7 +1056,7 @@ function montarMision(a){
     <div class="box">
       <div class="tag" style="font-size:.68rem;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--acc);margin-bottom:10px">✦ Misión del día ✦</div>
       <div class="mision-txt">${a.texto||""}</div>
-      <button class="btn" id="misionBtn" ${hecha?"disabled style='opacity:.4'":""}>
+      <button class="btn" id="misionBtn" ${hecha?"disabled":""}>
         ${hecha?"Misión cumplida ✔":"Misión cumplida"}
       </button>
     </div>`;
@@ -654,7 +1080,8 @@ function montarVideo(a){
 
 /* ===== ahorcado clásico ===== */
 function montarAhorcado(palabra){
-  const P=(palabra||"SORPRESA").toUpperCase();
+  const P=String(Array.isArray(palabra)?palabra[0]:(palabra||"SORPRESA"))
+    .normalize("NFD").replace(/[\u0300-\u0308]/g,"").toUpperCase();
   cont.innerHTML=`
     <div class="box">
       <svg id="gallows" width="150" height="160" viewBox="0 0 150 160">
@@ -712,18 +1139,15 @@ function montarAhorcado(palabra){
 
 /* ===== sopa de letras ===== */
 function montarSopa(palabras){
-  // normalizar: mayúsculas, sin acentos, solo letras
   const limpiar=w=>w.toUpperCase()
     .normalize("NFD").replace(/[\u0300-\u0302\u0308]/g,"")
     .replace(/[^A-ZÑ]/g,"");
   let words=[...new Set((palabras||["EJEMPLO"]).map(limpiar).filter(w=>w.length>1))];
 
-  // tamaño de grilla según la palabra más larga (9 a 12); >12 se descarta
   words=words.filter(w=>w.length<=12);
   const SN=Math.max(9, Math.min(12, ...[12], Math.max(...words.map(w=>w.length), 9)));
   const dirs=[[1,0],[0,1],[1,1],[-1,1]];
 
-  // generar la grilla hasta que TODAS las palabras queden colocadas
   function generar(){
     const grid=Array.from({length:SN},()=>Array(SN).fill(""));
     const orden=[...words].sort((a,b)=>b.length-a.length);
@@ -743,14 +1167,13 @@ function montarSopa(palabras){
         for(let i=0;i<w.length;i++) grid[y0+dy*i][x0+dx*i]=w[i];
         puesta=true;
       }
-      if(!puesta) return null; // no entró: rehacer toda la grilla
+      if(!puesta) return null;
     }
     return grid;
   }
   let grid=null;
   for(let i=0;i<40 && !grid;i++) grid=generar();
   if(!grid && words.length>1){
-    // caso extremo: sacar la palabra más larga y reintentar
     words.sort((a,b)=>a.length-b.length).pop();
     for(let i=0;i<40 && !grid;i++) grid=generar();
   }
