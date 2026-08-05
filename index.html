@@ -6,6 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>MafiApp</title>
+<link rel="apple-touch-icon" href="icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
@@ -17,26 +18,15 @@
 const CONFIG = {
 
   // Cómo la saludás (su nombre, un apodo, lo que quieras).
-  // Este es el valor GENERAL: se usa si el día no tiene uno propio.
   nombre: "Sofi",
 
-  // Cómo firmás las cartas (aparece al pie de cada mensaje).
-  // También es el valor general; cada día puede tener su propia firma.
+  // Cómo firmás las cartas (valor general; cada día puede tener la suya).
   firma: "— Yo",
 
-  // Fecha de aniversario para el contador de días.
-  // Dejalo vacío ("") si no querés mostrar el contador.
+  // Fecha de aniversario para el contador de días ("" lo oculta).
   aniversario: "2018-05-28",
 
-  // FONDO DE LA APP:
-  //   color:  cualquier color en hex (ej "#151210", "#F2EFE9", "#1B2A41")
-  //   imagen: si ponés una URL o nombre de archivo acá, se usa de fondo
-  //           en vez del color. Podés subir la foto al mismo repositorio
-  //           de GitHub y escribir solo el nombre, ej: "fondo.jpg"
-  //   textoClaro: true = texto blanco (fondos oscuros)
-  //               false = texto oscuro (fondos claros)
-  //               Solo se usa con imagen; con color se calcula solo.
-  //   estrellas: true muestra un cielo estrellado sutil (solo sin imagen)
+  // FONDO DE LA APP (color hex, o imagen subida al repositorio).
   fondo: {
     color: "#171310",
     imagen: "",
@@ -45,50 +35,92 @@ const CONFIG = {
   },
 
   /* ----------------------------------------------------------
-     PLAN DÍA POR DÍA
-     Para cada fecha ponés el mensaje y UNA actividad:
+     PLAN DÍA POR DÍA — mensaje + UNA actividad por fecha.
 
+     JUEGOS Y CONTENIDOS DISPONIBLES:
        { tipo: "video",    url: "link de youtube", titulo: "..." }
        { tipo: "ahorcado", palabra: "PALABRA" }
-       { tipo: "sopa",     palabras: ["UNA","DOS"] }   (hasta 12 letras c/u)
-       { tipo: "trivia",   pregunta: "...", opciones: ["A","B","C"],
-         respuesta: 1,          <- número de la opción correcta (1, 2 o 3)
-         acierto: "texto si acierta", error: "texto si le erra" }
+       { tipo: "sopa",     palabras: ["UNA","DOS"] }
+       { tipo: "trivia",   pregunta:"...", opciones:["A","B","C"], respuesta:1,
+                           acierto:"...", error:"..." }
        { tipo: "cupon",    texto: "una cena donde elijas" }
        { tipo: "foto",     archivo: "nombre.jpg", texto: "epígrafe" }
-                           (subí la foto al mismo repositorio)
-       { tipo: "mision",   texto: "mandame un audio cantando..." }
-       { tipo: "memoria",  emojis: ["⭐","🎬","🍕","🌙","👻","🐨"] }
-                           (memotest: 4 a 8 emojis, se duplican solos)
-       { tipo: "ruleta",   titulo: "¿Qué gano hoy?",
-         opciones: ["Helado","Peli","Masaje","Vos elegís"] }
-                           (2 a 6 opciones; gira una sola vez por día)
-       { tipo: "rascar",   premio: "texto escondido que aparece al rascar" }
+       { tipo: "mision",   texto: "mandame un audio..." }
+       { tipo: "memoria",  emojis: ["⭐","🎬","🍕","🌙"] }
+       { tipo: "ruleta",   titulo:"...", opciones:["A","B","C"] }
+       { tipo: "rascar",   premio: "texto escondido" }
+       { tipo: "simon",    rondas: 5 }        repetir secuencia de colores
+       { tipo: "atrapar",  objetivo: 12 }     cazar estrellas en 30s
+       { tipo: "puzzle" }                     rompecabezas deslizante
+       { tipo: "ppt",      rondas: 3 }        piedra papel tijera
+       { tipo: "mentira",  frases:["v","v","m"], mentira:3, acierto:"", error:"" }
+       { tipo: "crucigrama" }                 el crucigrama de ustedes (ya armado)
+       { tipo: "adivinanza", pista:"...", respuesta:"PALABRA" }
+       { tipo: "emojis",   emojis:"🕷️🧑🏙️", opciones:["A","B","C"], respuesta:1,
+                           acierto:"...", error:"..." }   adivinar por emojis
+       { tipo: "orden",    frase:"TE AMO MAS CADA DIA" }  ordenar la frase
+       { tipo: "numero",   max:100, intentos:7 }          adivinar el número
+       { tipo: "reaccion" }                   test de reflejos (tocá el verde)
+       { tipo: "topo",     aciertos:10 }      whack-a-mole de emojis
+       { tipo: "cajafuerte", codigo:"2805", pista:"..." } descifrar el código
+       { tipo: "verdadfalso", frases:[ {t:"frase",v:true}, {t:"frase",v:false} ] }
+       { tipo: "intruso" }                    encontrar el emoji distinto
+       { tipo: "audio",    archivo: "nota.m4a", texto: "escuchá esto" }
+                           (nota de voz: grabá un audio en tu iPhone con la
+                            app Notas de Voz, compartilo, subí el archivo
+                            .m4a al repositorio y poné acá el nombre exacto)
 
      OPCIONALES por día:
-       nombre: "..."     -> cómo la saludás ese día
-       firma: "..."      -> cómo firmás ese día
-       sellado: true     -> la carta queda sellada hasta completar el
-                            juego del día (todos menos video/foto/cupon/mision)
-       escribir: true    -> la carta se escribe sola, letra por letra
-       tema: { fondo: "#hex", acento: "#hex" }
-                         -> ese día TODA la app cambia de colores
+       nombre / firma    -> saludo y firma de ese día
+       sellado: true     -> carta sellada hasta ganar el juego del día
+       escribir: true    -> la carta se escribe sola
+       tema: { fondo:"#hex", acento:"#hex" }  -> colores de ese día
+       modo: "terminal" | "papel" | "arcade" | "cielo"
+                         -> CAMBIO RADICAL de interfaz ese día
      ---------------------------------------------------------- */
   porDefecto: {
     mensaje: "Hoy no dejé nada programado, pero igual pensé en vos.",
     actividad: { tipo: "ahorcado", palabra: "SORPRESA" }
   },
 
-  // Cuenta regresiva a un evento (cita, viaje, lo que venga).
-  // Dejá fecha en "" para ocultarla.
   proximoEvento: {
     fecha: "",
     texto: "para vernos"
   },
 
-  // Días especiales (formato "MM-DD"): la app se pone de fiesta,
-  // con más estrellas y todo dorado. El aniversario se agrega solo.
   diasEspeciales: ["08-14"],
+
+  /* MODO CAOS: cada día la app elige sola look, sobre, frases y a veces
+     un evento raro (estrellas fugaces, corazones, sobre gigante, pantalla
+     inclinada). Los días con "modo" o "tema" propios no se tocan.
+     activo:false lo apaga. */
+  caos: {
+    activo: true,
+    sobres: ["✉️","📩","📬","🎁","🎈","🔮"],
+    temas: [
+      { fondo:"#171310", acento:"#E4B75B" },
+      { fondo:"#1B1023", acento:"#B48CF2" },
+      { fondo:"#0F1B18", acento:"#5FC49E" },
+      { fondo:"#20090D", acento:"#E86A7C" },
+      { fondo:"#0D1420", acento:"#6FA8DC" },
+      { fondo:"#231326", acento:"#F08CB0" }
+    ],
+    frases: [
+      "tocá el sobre y leé lo de hoy",
+      "hay algo para vos acá adentro",
+      "correo entrante ✦",
+      "esto se abre con un toque",
+      "tocá, dale, tocá"
+    ],
+    estados: [
+      "la app amaneció con ganas",
+      "modo sorpresa: activado",
+      "hoy puede pasar cualquier cosa",
+      "estado de la app: enamorada",
+      "sin novedades por hoy. mentira.",
+      "cargando cosas lindas…"
+    ]
+  },
 
   dias: {
     "2026-07-30": {
@@ -116,46 +148,44 @@ const CONFIG = {
       mensaje: "Una fotito de hace 2 años <3.",
       actividad: { tipo: "foto", archivo: "IMG_3948.jpeg", texto: "Que aventura ese día, gracias por acompañarme en las locuras que se me ocurren." }
     },
-    
-    "2026-08-09": {
+    "2026-08-03": {
+      sellado: true,
+     mensaje: "Ya te extraño. Mua Mua Mua",
+    actividad: { tipo: "sopa",     palabras: ["CASPER", "TE AMO", "MUAMUAMUA","STITCH","PEQUE"] }
+    },
+    "2026-08-04": {
+      sellado: true,
+      mensaje: "Si te resultaba dificil armar notitas 1 vez por semana no sabes lo dificil que es todos los dias jajaja. Mañana nos vemos, yey. Me gusta que me des feedback eh, acepto sugerencias de MafiApp.",
+      actividad: { tipo: "memoria", emojis: ["⭐","🎬","🍕","🌙","🍣","🗼"] }
+    },
+    "2026-08-05": {
+      modo: "terminal",   // CAMBIO RADICAL 1: la app amanece en modo hacker
       mensaje: "Hoy tenés tarea.",
       actividad: { tipo: "mision", texto: "Mandame un audio cantando el estribillo de nuestra canción. Sin vergüenza." }
-    },
-
-    /* ===== agosto armado: editá los textos a tu gusto ===== */
-
-    "2026-08-05": {
-      sellado: true,
-      mensaje: "¿Viste? La app aprende juegos nuevos. Vos también tenés buena memoria… sobre todo para acordarte de todo lo que hago mal, jaja. Te amo.",
-      actividad: { tipo: "memoria", emojis: ["⭐","🎬","🍕","🌙","👻","🐨"] }
     },
     "2026-08-06": {
       sellado: true,
       mensaje: "No hay plan grande hoy, pero hay esto: yo, vos, y las ganas de estar así siempre.",
-      actividad: { tipo: "ahorcado", palabra: "JUNTITOS" }
+      actividad: { tipo: "simon", rondas: 5 }
     },
     "2026-08-07": {
       mensaje: "Encontré este video y me acordé de vos al instante. Miralo con auriculares.",
       // CAMBIÁ este link por el video que quieras mostrarle
       actividad: { tipo: "video", url: "https://www.youtube.com/watch?v=kJQP7kiw5Fk", titulo: "Para vos" }
     },
-    "2026-08-04": {
+    "2026-08-08": {
       mensaje: "Hoy la app viene con premio escondido. Usá el dedo, como los raspaditas del kiosco.",
       actividad: { tipo: "rascar", premio: "🍦 Vale por un helado de los grandes. Pago yo, elegís vos." }
     },
     "2026-08-09": {
       mensaje: "Domingo. Día internacional de no hacer nada, pero juntos.",
-      actividad: { tipo: "sopa", palabras: ["DOMINGO","MIMOS","SIESTA","PELI","MATE"] }
+      actividad: { tipo: "atrapar", objetivo: 12 }
     },
     "2026-08-10": {
+      modo: "papel",   // CAMBIO RADICAL 2: modo diario de papel
+      sellado: true,
       mensaje: "Arranca la semana. Que sepas que sos mi parte favorita de todas las semanas.",
-      // Editá esta trivia con algo real de ustedes si querés
-      actividad: { tipo: "trivia",
-        pregunta: "¿Qué es lo primero que pienso al despertarme?",
-        opciones: ["El desayuno", "Que quiero dormir más", "En vos (obvio)"],
-        respuesta: 3,
-        acierto: "Correcto. Todos los días.",
-        error: "Bueno, también… pero la respuesta era la 3." }
+      actividad: { tipo: "crucigrama" }
     },
     "2026-08-11": {
       escribir: true,
@@ -170,9 +200,9 @@ const CONFIG = {
     "2026-08-13": {
       sellado: true,
       mensaje: "Pista: mañana la app se pone linda. Más linda. Vos venite igual que siempre, que ya alcanza.",
-      actividad: { tipo: "ahorcado", palabra: "MANANA" }
+      actividad: { tipo: "puzzle" }
     },
-    "2026-08-03": {
+    "2026-08-14": {
       nombre: "Peque",
       tema: { fondo: "#1A1206", acento: "#F2C14E" },
       mensaje: "Hoy es un día especial y la app lo sabe: se vistió de gala. Girá la ruleta, lo que salga se cumple. Palabra.",
@@ -180,6 +210,7 @@ const CONFIG = {
         opciones: ["Cena afuera 🍝", "Peli + pochoclos 🍿", "Día de mimos 💆", "Sorpresa mía 🎁"] }
     },
     "2026-08-15": {
+      modo: "arcade",   // CAMBIO RADICAL 3: modo arcade neón
       mensaje: "Después del festejo de ayer, una foto para el recuerdo.",
       // Subí una foto al repositorio y poné acá el nombre exacto del archivo
       actividad: { tipo: "foto", archivo: "foto1508.jpeg", texto: "Nosotros, siendo nosotros" }
@@ -191,26 +222,29 @@ const CONFIG = {
     "2026-08-17": {
       tema: { fondo: "#2A1420", acento: "#F08CB0" },
       mensaje: "Hoy la app amaneció rosa. No sé, se ve que también está enamorada.",
-      actividad: { tipo: "trivia",
-        pregunta: "¿Cuál es mi comida favorita que hacés vos?",
-        opciones: ["Todo me gusta", "Todo me encanta", "No sé elegir"],
-        respuesta: 1,
-        acierto: "Trampa: eran todas correctas.",
-        error: "Trampa: eran todas correctas igual." }
+      actividad: { tipo: "ppt", rondas: 3 }
     },
     "2026-08-18": {
       sellado: true,
       mensaje: "Encontraste las palabras. Yo hace rato que encontré a la persona.",
-      actividad: { tipo: "sopa", palabras: ["ESTRELLA","CINE","ABRAZO","VIAJE","RISAS"] }
+      // CAMBIÁ las frases por cosas reales (la mentira es la N° indicada)
+      actividad: { tipo: "mentira",
+        frases: ["La primera vez que te vi me puse nervioso",
+                 "Guardo capturas de nuestras conversaciones",
+                 "Una vez me olvidé de tu cumpleaños"],
+        mentira: 3,
+        acierto: "Obvio. Jamás en la vida.",
+        error: "¡No! Esa era verdad, jaja." }
     },
     "2026-08-19": {
       mensaje: "Rascá despacito que abajo hay data importante.",
       actividad: { tipo: "rascar", premio: "TE AMO ×2984 (uno por cada día juntos, el número sigue subiendo)" }
     },
     "2026-08-20": {
+      modo: "cielo",   // CAMBIO RADICAL 4: modo cielo de día
       sellado: true,
       mensaje: "Sos eso: lo que brilla aunque el día esté nublado.",
-      actividad: { tipo: "ahorcado", palabra: "ESTRELLITA" }
+      actividad: { tipo: "cajafuerte", codigo: "2805", pista: "Nuestra fecha: día y mes" }
     },
     "2026-08-21": {
       mensaje: "Viernes. La ruleta decide el plan del finde y no se discute (salvo que quieras discutirlo, en ese caso vos ganás).",
@@ -225,7 +259,7 @@ const CONFIG = {
     "2026-08-23": {
       sellado: true,
       mensaje: "Ganaste de nuevo. Empiezo a sospechar que sos más inteligente que yo. Confirmado, en realidad.",
-      actividad: { tipo: "memoria", emojis: ["🌟","🎠","🧸","🎈","🍓","🌈"] }
+      actividad: { tipo: "topo", aciertos: 10 }
     },
     "2026-08-24": {
       mensaje: "Lunes. Nadie merece un lunes. Tomá, para amortiguar:",
@@ -239,12 +273,12 @@ const CONFIG = {
     },
     "2026-08-26": {
       mensaje: "Pregunta seria hoy. Concentrate.",
-      actividad: { tipo: "trivia",
-        pregunta: "En una escala del 1 al 10, ¿cuánto te amo?",
-        opciones: ["10", "100", "No entra en la escala"],
-        respuesta: 3,
-        acierto: "Exacto. La escala quedó chica hace años.",
-        error: "Error. La escala quedó chica hace años." }
+      // CAMBIÁ los emojis y opciones por una peli/serie de ustedes
+      actividad: { tipo: "emojis", emojis: "🕷️🧑🏙️",
+        opciones: ["Spiderman", "Batman", "Superman"],
+        respuesta: 1,
+        acierto: "Obvio, la vimos juntos.",
+        error: "¿Batman con telarañas? No, mi amor." }
     },
     "2026-08-27": {
       sellado: true,
@@ -258,7 +292,7 @@ const CONFIG = {
     },
     "2026-08-29": {
       mensaje: "Sábado. Hoy el poder es tuyo.",
-      actividad: { tipo: "mision", texto: "Elegí la peli de esta noche. Poder absoluto, sin veto. Usalo con sabiduría." }
+      actividad: { tipo: "reaccion" }
     },
     "2026-08-30": {
       escribir: true,
@@ -508,6 +542,243 @@ header .fecha{
 /* misión */
 .mision-txt{font-family:var(--serif);font-style:italic;font-size:1.18rem;line-height:1.5;margin-bottom:6px}
 
+/* simon */
+#simonPads{display:grid;grid-template-columns:repeat(2,96px);gap:10px;justify-content:center;margin:8px auto}
+.simon-pad{
+  width:96px;height:96px;border-radius:18px;border:1px solid var(--card-border);
+  cursor:pointer;opacity:.55;transition:opacity .12s ease, transform .12s ease;
+}
+.simon-pad:active{transform:scale(.95)}
+.simon-pad.lit{opacity:1;box-shadow:0 0 22px var(--acc-soft)}
+.simon-ronda{font-weight:700;color:var(--acc);margin-bottom:6px;letter-spacing:.06em;font-size:.85rem}
+
+/* atrapar estrellas */
+#atraparZona{
+  position:relative;height:260px;border:1px solid var(--card-border);
+  border-radius:14px;background:rgba(0,0,0,.14);overflow:hidden;margin:8px 0;
+}
+.atrapar-star{
+  position:absolute;font-size:1.9rem;cursor:pointer;user-select:none;
+  animation:aparecer .18s ease;transition:transform .1s ease;
+  padding:6px;line-height:1;
+}
+.atrapar-star:active{transform:scale(1.35)}
+@keyframes aparecer{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+.atrapar-hud{display:flex;justify-content:space-between;font-weight:700;color:var(--acc);font-size:.9rem;padding:0 4px}
+
+/* puzzle deslizante */
+#puzzleGrid{display:grid;grid-template-columns:repeat(3,74px);gap:6px;justify-content:center;margin:8px auto}
+.pz-tile{
+  width:74px;height:74px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+  background:var(--key);border:1px solid var(--card-border);cursor:pointer;
+  font-family:var(--serif);font-size:1.7rem;font-weight:600;color:var(--acc);
+  transition:transform .12s ease, background .2s ease;
+}
+.pz-tile:active{transform:scale(.95)}
+.pz-tile.vacia{background:transparent;border-color:transparent;cursor:default}
+
+/* piedra papel tijera */
+.ppt-ops{display:flex;gap:12px;justify-content:center;margin:10px 0 4px}
+.ppt-ops button{
+  font-size:2.2rem;width:76px;height:76px;border-radius:18px;cursor:pointer;
+  background:var(--key);border:1px solid var(--card-border);
+  transition:transform .12s ease;
+}
+.ppt-ops button:active{transform:scale(.92)}
+.ppt-ops button:disabled{opacity:.35}
+.ppt-marcador{font-weight:700;color:var(--acc);font-size:1rem;margin-top:6px}
+.ppt-jugada{font-size:1.5rem;min-height:1.6em;margin-top:8px}
+
+/* ================== MODOS RADICALES ================== */
+/* modo terminal (hacker) */
+body.modo-terminal{
+  --acc:#29FF7A; --acc-soft:rgba(41,255,122,.3);
+  --ink:#29FF7A; --ink-soft:rgba(41,255,122,.55);
+  --card:rgba(41,255,122,.05); --card-border:rgba(41,255,122,.4);
+  --key:rgba(41,255,122,.08);
+  --paper:#03140A; --paper-ink:#29FF7A; --paper-soft:rgba(41,255,122,.6);
+  --sans:ui-monospace,"SF Mono",Menlo,monospace;
+  --serif:ui-monospace,"SF Mono",Menlo,monospace;
+  background:#000!important;background-image:none!important;
+}
+body.modo-terminal::after{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:98;
+  background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,0,0,.22) 2px 4px);
+}
+body.modo-terminal .box,body.modo-terminal .letter{border-radius:4px;box-shadow:none}
+body.modo-terminal .letter{border:1px solid var(--card-border)}
+body.modo-terminal .letter::before{display:none}
+body.modo-terminal .btn{background:transparent;color:var(--acc);border:1px solid var(--acc);border-radius:4px}
+body.modo-terminal header h1::before{content:"> "}
+body.modo-terminal header h1{font-size:1.4rem;letter-spacing:.05em}
+body.modo-terminal .env-emoji{filter:grayscale(1) sepia(1) hue-rotate(80deg) saturate(6) drop-shadow(0 0 10px rgba(41,255,122,.5))}
+body.modo-terminal #sky{display:none}
+
+/* modo papel (diario) */
+body.modo-papel{
+  --acc:#A34A2A; --acc-soft:rgba(163,74,42,.25);
+  --ink:#2E2418; --ink-soft:rgba(46,36,24,.55);
+  --card:#FFFDF7; --card-border:rgba(46,36,24,.2);
+  --key:rgba(46,36,24,.06);
+  --paper:#FFFDF7; --paper-ink:#2E2418; --paper-soft:#A34A2A;
+  background:#F0E9DA!important;
+  background-image:repeating-linear-gradient(0deg,transparent 0 27px,rgba(46,36,24,.05) 27px 28px)!important;
+}
+body.modo-papel #sky{display:none}
+body.modo-papel .box{box-shadow:3px 4px 0 rgba(46,36,24,.12);border-radius:6px;backdrop-filter:none}
+body.modo-papel .box:nth-of-type(odd){transform:rotate(-.5deg)}
+body.modo-papel .letter{border-radius:4px;box-shadow:4px 5px 0 rgba(46,36,24,.15)}
+body.modo-papel .letter::before{border-left:2px solid rgba(163,74,42,.35);inset:7px auto 7px 34px;border-top:none;border-right:none;border-bottom:none;border-radius:0}
+body.modo-papel .env-emoji{filter:sepia(.5)}
+body.modo-papel header h1{font-size:2.2rem}
+
+/* modo arcade (neón) */
+body.modo-arcade{
+  --acc:#FF3D9A; --acc-soft:rgba(255,61,154,.4);
+  --ink:#EDE9FF; --ink-soft:rgba(237,233,255,.6);
+  --card:rgba(41,217,255,.05); --card-border:rgba(41,217,255,.45);
+  --key:rgba(41,217,255,.1);
+  --paper:#160B26; --paper-ink:#EDE9FF; --paper-soft:#29D9FF;
+  --sans:ui-monospace,"SF Mono",Menlo,monospace;
+  --serif:ui-monospace,"SF Mono",Menlo,monospace;
+  background:#0B0517!important;
+  background-image:radial-gradient(80% 60% at 50% -10%, #221040 0%, #0B0517 60%)!important;
+}
+body.modo-arcade .box{box-shadow:0 0 16px rgba(41,217,255,.18), inset 0 0 14px rgba(41,217,255,.06)}
+body.modo-arcade .letter{border:1px solid rgba(255,61,154,.5);box-shadow:0 0 22px rgba(255,61,154,.25)}
+body.modo-arcade .letter::before{display:none}
+body.modo-arcade .btn{box-shadow:0 0 14px var(--acc-soft);text-transform:uppercase;letter-spacing:.1em;color:#fff;background:var(--acc)}
+body.modo-arcade header h1{text-transform:uppercase;letter-spacing:.16em;font-size:1.5rem;text-shadow:0 0 14px var(--acc-soft)}
+body.modo-arcade .env-emoji{filter:drop-shadow(0 0 12px rgba(41,217,255,.7))}
+body.modo-arcade #sky .st{background:#29D9FF}
+
+/* modo cielo (día) */
+body.modo-cielo{
+  --acc:#2E6FA8; --acc-soft:rgba(46,111,168,.3);
+  --ink:#1F3040; --ink-soft:rgba(31,48,64,.55);
+  --card:rgba(255,255,255,.72); --card-border:rgba(31,48,64,.15);
+  --key:rgba(31,48,64,.06);
+  --paper:#FFFFFF; --paper-ink:#1F3040; --paper-soft:#2E6FA8;
+  background:#BFD9F2!important;
+  background-image:linear-gradient(180deg,#A9CBEC 0%,#D8E9F8 55%,#F4F9FE 100%)!important;
+}
+body.modo-cielo #sky{display:none}
+body.modo-cielo .box{backdrop-filter:blur(8px);box-shadow:0 10px 26px rgba(46,111,168,.15)}
+body.modo-cielo .letter{box-shadow:0 12px 30px rgba(46,111,168,.2)}
+.nube{
+  position:fixed;z-index:-1;pointer-events:none;opacity:.85;
+  animation:derivar linear infinite;
+}
+@keyframes derivar{
+  from{transform:translateX(-18vw)}
+  to{transform:translateX(118vw)}
+}
+
+/* ================== JUEGOS NUEVOS ================== */
+/* crucigrama */
+#cruciWrap{overflow-x:auto;padding-bottom:6px}
+#cruciGrid{display:grid;gap:2px;justify-content:center;margin:6px auto;width:max-content}
+.cr-cell{
+  display:flex;align-items:center;justify-content:center;
+  background:var(--key);border:1px solid var(--card-border);border-radius:4px;
+  font-weight:700;font-size:.62rem;color:var(--ink);position:relative;
+}
+.cr-cell.negra{background:transparent;border-color:transparent}
+.cr-cell.llena{background:rgba(139,199,154,.25);border-color:rgba(139,199,154,.55)}
+.cr-cell .num{position:absolute;top:0;left:1.5px;font-size:.42rem;color:var(--acc);font-weight:700}
+.cr-pistas{text-align:left;margin-top:12px;display:flex;flex-direction:column;gap:6px}
+.cr-pista{
+  border:1px solid var(--card-border);border-radius:10px;background:var(--key);
+  color:var(--ink);font-family:var(--sans);font-weight:600;font-size:.82rem;
+  padding:9px 12px;cursor:pointer;text-align:left;
+}
+.cr-pista.activa{border-color:var(--acc);background:var(--acc-soft)}
+.cr-pista.hecha{opacity:.45;text-decoration:line-through}
+.cr-input{display:flex;gap:8px;margin-top:12px}
+.cr-input input, .juego-input input{
+  flex:1;min-width:0;border:1px solid var(--card-border);border-radius:10px;
+  background:var(--key);color:var(--ink);font-family:var(--sans);
+  font-size:1rem;font-weight:600;padding:10px 12px;outline:none;
+  text-transform:uppercase;
+}
+.juego-input{display:flex;gap:8px;margin-top:10px;justify-content:center}
+.juego-input .btn{margin-top:0}
+
+/* orden de frase */
+.orden-zona{min-height:46px;border:1px dashed var(--card-border);border-radius:12px;
+  display:flex;flex-wrap:wrap;gap:6px;padding:8px;margin:8px 0;justify-content:center}
+.orden-chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.orden-chip{
+  border:1px solid var(--card-border);border-radius:999px;background:var(--key);
+  color:var(--ink);font-family:var(--sans);font-weight:700;font-size:.88rem;
+  padding:8px 14px;cursor:pointer;
+}
+.orden-zona .orden-chip{background:var(--acc);color:#241A08;border-color:var(--acc)}
+
+/* reaccion */
+#reacZona{
+  height:180px;border-radius:14px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;cursor:pointer;
+  background:var(--key);border:1px solid var(--card-border);
+  font-weight:700;font-size:1.1rem;user-select:none;margin:8px 0;gap:6px;
+}
+#reacZona.listo{background:rgba(139,199,154,.4);border-color:rgba(139,199,154,.8)}
+#reacZona.esperando{background:rgba(219,138,124,.18)}
+
+/* topo */
+#topoGrid{display:grid;grid-template-columns:repeat(3,84px);gap:8px;justify-content:center;margin:8px auto}
+.topo-hoyo{
+  width:84px;height:84px;border-radius:16px;background:var(--key);
+  border:1px solid var(--card-border);font-size:2.4rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.topo-hoyo:active{transform:scale(.95)}
+
+/* cajafuerte */
+.caja-intentos{display:flex;flex-direction:column;gap:6px;margin:10px 0;align-items:center}
+.caja-fila{display:flex;gap:6px}
+.caja-dig{
+  width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:1.2rem;border:1px solid var(--card-border);background:var(--key);color:var(--ink);
+}
+.caja-dig.ok{background:rgba(139,199,154,.45);border-color:rgba(139,199,154,.8)}
+.caja-dig.casi{background:rgba(228,183,91,.4);border-color:rgba(228,183,91,.8)}
+
+/* verdad o falso */
+.vf-frase{font-family:var(--serif);font-style:italic;font-size:1.15rem;line-height:1.4;margin:10px 0;min-height:2.6em}
+.vf-btns{display:flex;gap:12px;justify-content:center}
+.vf-btns .btn{margin-top:0;min-width:110px}
+.vf-prog{font-size:.8rem;color:var(--ink-soft);font-weight:700;letter-spacing:.08em}
+
+/* intruso */
+#intrusoGrid{display:grid;gap:6px;justify-content:center;margin:8px auto}
+.in-cel{
+  width:52px;height:52px;border-radius:12px;background:var(--key);
+  border:1px solid var(--card-border);font-size:1.6rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.in-cel:active{transform:scale(.93)}
+
+/* emojis (adivinar) */
+.emo-big{font-size:3rem;letter-spacing:.1em;margin:6px 0 12px}
+
+/* eventos raros del caos */
+.fugaz{
+  position:fixed;z-index:1;pointer-events:none;color:var(--acc);
+  font-size:1rem;opacity:0;animation:cruzar 1.6s ease-in forwards;
+}
+@keyframes cruzar{
+  0%{opacity:0;transform:translate(0,0) rotate(-32deg)}
+  12%{opacity:.9}
+  100%{opacity:0;transform:translate(-46vw,52vh) rotate(-32deg)}
+}
+body.caos-gigante .env-emoji{font-size:6.4rem}
+body.caos-inclinada #app{transform:rotate(-.8deg)}
+.estado{
+  color:var(--ink-soft);font-size:.78rem;margin-top:6px;
+  font-family:var(--serif);font-style:italic;
+}
+
 /* memoria (memotest) */
 #memGrid{display:grid;gap:8px;justify-content:center;margin:6px auto}
 .mem-card{
@@ -587,6 +858,7 @@ body.fiesta .counter{border-color:var(--acc-soft)}
   <header>
     <h1 id="saludo"></h1>
     <div class="fecha" id="fecha"></div>
+    <div class="estado" id="estadoApp" style="display:none"></div>
     <div>
       <span class="counter" id="counter" style="display:none"><b id="dias"></b>&nbsp;días juntos</span>
       <span class="counter" id="countdown" style="display:none"></span>
@@ -629,6 +901,23 @@ function luminancia(hex){
   return (0.299*((n>>16)&255)+0.587*((n>>8)&255)+0.114*(n&255))/255;
 }
 
+/* ---------- motor de caos: decide el look del día ---------- */
+function hashTxt(s){ let h=7; for(const c of s) h=((h*31)+c.charCodeAt(0))>>>0; return h; }
+function elegir(arr,sal){ return arr && arr.length ? arr[hashTxt(fechaHoy()+sal)%arr.length] : null; }
+const CAOS=(function(){
+  const c=CONFIG.caos||{};
+  if(c.activo===false) return {activo:false};
+  const quirks=["nada","nada","nada","fugaz","corazones","gigante","inclinada"];
+  return {
+    activo:true,
+    tema: elegir(c.temas,"t"),
+    sobre: elegir(c.sobres,"s"),
+    frase: elegir(c.frases,"f"),
+    estado: elegir(c.estados,"e"),
+    quirk: elegir(quirks,"q")
+  };
+})();
+
 /* ---------- fondo, tema y cielo ---------- */
 (function(){
   const f=CONFIG.fondo||{};
@@ -643,6 +932,7 @@ function luminancia(hex){
     claro = luminancia(col) < 0.55;
     if(f.estrellas!==false){
       const sky=document.getElementById("sky");
+      const corazones = CAOS.activo && CAOS.quirk==="corazones";
       for(let i=0;i<16;i++){
         const s=document.createElement("span");
         s.className="st";
@@ -650,6 +940,12 @@ function luminancia(hex){
         s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;`+
           `width:${size}px;height:${size}px;animation-delay:${(Math.random()*4).toFixed(1)}s;`+
           `animation-duration:${(3+Math.random()*3).toFixed(1)}s`;
+        if(corazones){
+          s.textContent="♥";
+          s.style.background="none";
+          s.style.fontSize=(7+Math.random()*6).toFixed(0)+"px";
+          s.style.width="auto"; s.style.height="auto";
+        }
         sky.appendChild(s);
       }
     }
@@ -676,9 +972,30 @@ const diaHoy = CONFIG.dias[fechaHoy()] || CONFIG.porDefecto;
 document.getElementById("saludo").textContent = "Hola, " + (diaHoy.nombre || CONFIG.nombre);
 document.getElementById("letterFirma").textContent = diaHoy.firma || CONFIG.firma || "— para vos";
 
-/* tema del día: cambia colores de toda la app */
-if(diaHoy.tema){
-  const t=diaHoy.tema;
+/* modo radical del día (terminal / papel / arcade / cielo) */
+const MODOS={terminal:true, papel:false, arcade:true, cielo:false};
+const modoHoy = diaHoy.modo && (diaHoy.modo in MODOS) ? diaHoy.modo : null;
+if(modoHoy){
+  document.body.classList.add("modo-"+modoHoy);
+  document.body.classList.remove("with-image");
+  document.body.classList.toggle("light-text-off", !MODOS[modoHoy]);
+  if(modoHoy==="cielo"){
+    for(let i=0;i<5;i++){
+      const n=document.createElement("span");
+      n.className="nube"; n.textContent="☁️";
+      n.style.top=(4+Math.random()*40)+"%";
+      n.style.fontSize=(1.6+Math.random()*2.2)+"rem";
+      n.style.animationDuration=(46+Math.random()*50)+"s";
+      n.style.animationDelay=(-Math.random()*60)+"s";
+      document.body.appendChild(n);
+    }
+  }
+}
+
+/* tema del día: el del día puntual gana; si no hay (y no hay modo), el caos elige */
+const temaDia = modoHoy ? null : (diaHoy.tema || (CAOS.activo && !(CONFIG.fondo&&CONFIG.fondo.imagen) ? CAOS.tema : null));
+if(temaDia){
+  const t=temaDia;
   if(t.fondo){
     document.body.style.backgroundColor=t.fondo;
     document.body.style.backgroundImage="none";
@@ -692,8 +1009,32 @@ if(diaHoy.tema){
   }
 }
 
+/* resto del caos: sobre, frases y eventos raros (no en días con modo) */
+if(CAOS.activo && !modoHoy){
+  if(CAOS.sobre) document.getElementById("envelope").textContent=CAOS.sobre;
+  if(CAOS.frase) document.querySelector(".hint").textContent=CAOS.frase;
+  if(CAOS.estado){
+    const e=document.getElementById("estadoApp");
+    e.textContent=CAOS.estado; e.style.display="block";
+  }
+  if(CAOS.quirk==="gigante") document.body.classList.add("caos-gigante");
+  if(CAOS.quirk==="inclinada") document.body.classList.add("caos-inclinada");
+  if(CAOS.quirk==="fugaz"){
+    const tirar=()=>{
+      const s=document.createElement("span");
+      s.className="fugaz"; s.textContent="✦";
+      s.style.top=(5+Math.random()*30)+"%";
+      s.style.right=(-4+Math.random()*20)+"%";
+      document.body.appendChild(s);
+      setTimeout(()=>s.remove(),1800);
+    };
+    setTimeout(tirar,2500);
+    setInterval(tirar,17000);
+  }
+}
+
 const act=diaHoy.actividad;
-const puedeSellar = act && ["ahorcado","sopa","trivia","memoria","ruleta","rascar"].includes(act.tipo);
+const puedeSellar = act && ["ahorcado","sopa","trivia","memoria","ruleta","rascar","simon","atrapar","puzzle","ppt","mentira","crucigrama","adivinanza","emojis","orden","numero","reaccion","topo","cajafuerte","verdadfalso","intruso"].includes(act.tipo);
 let sellado = diaHoy.sellado===true && puedeSellar && leer("sello-"+fechaHoy())!=="abierto";
 let cartaTipeada = false;
 
@@ -782,13 +1123,15 @@ function confetti(){
 }
 function celebrar(){
   confetti();
+  try{ const au=new Audio("win.wav"); au.volume=0.5; au.play().catch(()=>{}); }catch(e){}
   if(sellado){
     sellado=false;
     guardar("sello-"+fechaHoy(),"abierto");
     pintarCarta();
-    document.getElementById("letter").style.display="block";
+    const l=document.getElementById("letter");
+    l.style.display="block";
     tipearCarta();
-    document.getElementById("letter").scrollIntoView({behavior:"smooth",block:"center"});
+    if(l.scrollIntoView) l.scrollIntoView({behavior:"smooth",block:"center"});
   }
 }
 
@@ -806,6 +1149,22 @@ if(act && act.tipo){
   if(act.tipo==="memoria") montarMemoria(act);
   if(act.tipo==="ruleta") montarRuleta(act);
   if(act.tipo==="rascar") montarRascar(act);
+  if(act.tipo==="simon") montarSimon(act);
+  if(act.tipo==="atrapar") montarAtrapar(act);
+  if(act.tipo==="puzzle") montarPuzzle(act);
+  if(act.tipo==="ppt") montarPpt(act);
+  if(act.tipo==="mentira") montarMentira(act);
+  if(act.tipo==="crucigrama") montarCrucigrama(act);
+  if(act.tipo==="adivinanza") montarAdivinanza(act);
+  if(act.tipo==="emojis") montarEmojis(act);
+  if(act.tipo==="orden") montarOrden(act);
+  if(act.tipo==="numero") montarNumero(act);
+  if(act.tipo==="reaccion") montarReaccion(act);
+  if(act.tipo==="topo") montarTopo(act);
+  if(act.tipo==="cajafuerte") montarCajafuerte(act);
+  if(act.tipo==="verdadfalso") montarVerdadFalso(act);
+  if(act.tipo==="intruso") montarIntruso(act);
+  if(act.tipo==="audio") montarAudio(act);
 }
 
 /* ===== memoria (memotest) ===== */
@@ -979,6 +1338,722 @@ function montarRascar(a){
     cv.addEventListener("mousemove",move);
     window.addEventListener("mouseup",up);
   });
+}
+
+/* ===== simon (repetir la secuencia) ===== */
+function montarSimon(a){
+  const META=Math.min(10,Math.max(2,parseInt(a.rondas,10)||5));
+  const COLS=["#E86A7C","#5FC49E","#6FA8DC","#E4B75B"];
+  cont.innerHTML=`
+    <div class="box">
+      <div class="simon-ronda" id="siRonda"></div>
+      <div id="simonPads"></div>
+      <div class="result" id="siResult"></div>
+      <button class="btn" id="siBtn">Empezar</button>
+    </div>`;
+  const pads=[];
+  COLS.forEach((c,i)=>{
+    const p=document.createElement("div");
+    p.className="simon-pad"; p.style.background=c; p.dataset.i=i;
+    document.getElementById("simonPads").appendChild(p);
+    pads.push(p);
+  });
+  let seq=[], paso=0, esperando=false, jugando=false;
+  const ronda=()=>document.getElementById("siRonda").textContent=`ronda ${seq.length} de ${META}`;
+  const prender=(i,ms)=>new Promise(r=>{
+    pads[i].classList.add("lit");
+    setTimeout(()=>{ pads[i].classList.remove("lit"); setTimeout(r,140); },ms);
+  });
+  async function mostrar(){
+    esperando=false;
+    for(const i of seq) await prender(i,420);
+    esperando=true; paso=0;
+  }
+  function ganar(){
+    jugando=false; esperando=false;
+    const r=document.getElementById("siResult");
+    r.textContent="Secuencia completa. Impecable.";
+    r.className="result ok";
+    celebrar();
+  }
+  window._dbg=window._dbg||{}; window._dbg.simon={win:ganar};
+  function perder(){
+    jugando=false; esperando=false;
+    const r=document.getElementById("siResult");
+    r.textContent="Uy, no era ese. Probá de nuevo.";
+    r.className="result bad";
+    const b=document.getElementById("siBtn");
+    b.style.display="inline-block"; b.textContent="Reintentar";
+  }
+  document.getElementById("siBtn").addEventListener("click",function(){
+    this.style.display="none";
+    document.getElementById("siResult").textContent="";
+    seq=[Math.floor(Math.random()*4)]; jugando=true; ronda(); mostrar();
+  });
+  pads.forEach(p=>p.addEventListener("click",async()=>{
+    if(!jugando||!esperando) return;
+    const i=parseInt(p.dataset.i,10);
+    p.classList.add("lit"); setTimeout(()=>p.classList.remove("lit"),200);
+    if(i!==seq[paso]){ perder(); return; }
+    paso++;
+    if(paso===seq.length){
+      if(seq.length>=META){ ganar(); return; }
+      esperando=false;
+      seq.push(Math.floor(Math.random()*4));
+      ronda();
+      setTimeout(mostrar,650);
+    }
+  }));
+}
+
+/* ===== atrapar estrellas ===== */
+function montarAtrapar(a){
+  const META=Math.max(3,parseInt(a.objetivo,10)||12);
+  const DUR=30;
+  cont.innerHTML=`
+    <div class="box">
+      <div class="atrapar-hud"><span id="atPts">⭐ 0 / ${META}</span><span id="atTiempo">${DUR}s</span></div>
+      <div id="atraparZona"></div>
+      <div class="result" id="atResult"></div>
+      <button class="btn" id="atBtn">Jugar</button>
+    </div>`;
+  const zona=document.getElementById("atraparZona");
+  let pts=0, resta=DUR, spawner=null, reloj=null, activo=false;
+  function limpiar(){ clearInterval(spawner); clearInterval(reloj); zona.innerHTML=""; activo=false; }
+  function terminar(win){
+    limpiar();
+    const r=document.getElementById("atResult");
+    r.textContent = win ? `¡${pts} estrellas! Manos rápidas.` : `${pts} de ${META}… casi. Otra vez.`;
+    r.className="result "+(win?"ok":"bad");
+    if(win) celebrar();
+    else { const b=document.getElementById("atBtn"); b.style.display="inline-block"; b.textContent="Reintentar"; }
+  }
+  window._dbg=window._dbg||{}; window._dbg.atrapar={win:()=>{pts=META;terminar(true);}};
+  function tirarEstrella(){
+    const s=document.createElement("span");
+    s.className="atrapar-star";
+    s.textContent=Math.random()<0.18?"🌟":"⭐";
+    s.style.left=(4+Math.random()*80)+"%";
+    s.style.top=(4+Math.random()*78)+"%";
+    const cazar=e=>{
+      e.preventDefault();
+      if(!activo) return;
+      pts++; s.remove();
+      document.getElementById("atPts").textContent=`⭐ ${pts} / ${META}`;
+      if(pts>=META) terminar(true);
+    };
+    s.addEventListener("touchstart",cazar,{passive:false});
+    s.addEventListener("mousedown",cazar);
+    zona.appendChild(s);
+    setTimeout(()=>s.remove(),1250);
+  }
+  document.getElementById("atBtn").addEventListener("click",function(){
+    this.style.display="none";
+    document.getElementById("atResult").textContent="";
+    pts=0; resta=DUR; activo=true;
+    document.getElementById("atPts").textContent=`⭐ 0 / ${META}`;
+    document.getElementById("atTiempo").textContent=DUR+"s";
+    spawner=setInterval(tirarEstrella,520);
+    reloj=setInterval(()=>{
+      resta--;
+      document.getElementById("atTiempo").textContent=resta+"s";
+      if(resta<=0) terminar(pts>=META);
+    },1000);
+  });
+}
+
+/* ===== puzzle deslizante ===== */
+function montarPuzzle(){
+  cont.innerHTML=`
+    <div class="box">
+      <p class="note">tocá una pieza al lado del hueco para moverla y ordenalas del 1 al 8</p>
+      <div id="puzzleGrid"></div>
+      <div class="result" id="pzResult"></div>
+      <button class="btn" id="pzBtn">Mezclar de nuevo</button>
+    </div>`;
+  let board;
+  function mezclar(){
+    board=[1,2,3,4,5,6,7,8,0];
+    let vacio=8, prev=-1;
+    for(let m=0;m<90;m++){
+      const x=vacio%3, y=Math.floor(vacio/3);
+      const vecinos=[];
+      if(x>0)vecinos.push(vacio-1); if(x<2)vecinos.push(vacio+1);
+      if(y>0)vecinos.push(vacio-3); if(y<2)vecinos.push(vacio+3);
+      const cand=vecinos.filter(v=>v!==prev);
+      const el=cand[Math.floor(Math.random()*cand.length)];
+      board[vacio]=board[el]; board[el]=0;
+      prev=vacio; vacio=el;
+    }
+  }
+  function pintar(){
+    const g=document.getElementById("puzzleGrid");
+    g.innerHTML="";
+    board.forEach((v,i)=>{
+      const t=document.createElement("div");
+      t.className="pz-tile"+(v===0?" vacia":"");
+      t.textContent=v===0?"":v;
+      t.addEventListener("click",()=>mover(i));
+      g.appendChild(t);
+    });
+  }
+  function mover(i){
+    const vacio=board.indexOf(0);
+    const xi=i%3, yi=Math.floor(i/3), xv=vacio%3, yv=Math.floor(vacio/3);
+    if(Math.abs(xi-xv)+Math.abs(yi-yv)!==1) return;
+    board[vacio]=board[i]; board[i]=0;
+    pintar();
+    if(board.slice(0,8).every((v,k)=>v===k+1)){
+      const r=document.getElementById("pzResult");
+      r.textContent="Ordenado. Cerebrito.";
+      r.className="result ok";
+      celebrar();
+    }
+  }
+  window._dbg=window._dbg||{};
+  window._dbg.puzzle={set:(b)=>{board=b.slice();pintar();},mover};
+  document.getElementById("pzBtn").addEventListener("click",()=>{
+    document.getElementById("pzResult").textContent="";
+    mezclar(); pintar();
+  });
+  mezclar(); pintar();
+}
+
+/* ===== piedra papel tijera ===== */
+function montarPpt(a){
+  const META=Math.min(5,Math.max(1,parseInt(a.rondas,10)||3));
+  const OPS=["✊","✋","✌️"];
+  cont.innerHTML=`
+    <div class="box">
+      <p class="note">primero en ganar ${META} rondas. La app no hace trampa (mucha).</p>
+      <div class="ppt-ops" id="pptOps">
+        ${OPS.map((o,i)=>`<button data-i="${i}">${o}</button>`).join("")}
+      </div>
+      <div class="ppt-jugada" id="pptJugada"></div>
+      <div class="ppt-marcador" id="pptMarc">vos 0 — 0 app</div>
+      <div class="result" id="pptResult"></div>
+      <button class="btn" id="pptBtn" style="display:none">Revancha</button>
+    </div>`;
+  let yo=0, app=0, fin=false;
+  const marc=()=>document.getElementById("pptMarc").textContent=`vos ${yo} — ${app} app`;
+  function cerrar(win){
+    fin=true;
+    document.querySelectorAll("#pptOps button").forEach(b=>b.disabled=true);
+    const r=document.getElementById("pptResult");
+    r.textContent = win ? "Ganaste vos. Como siempre." : "Ganó la app… exijo revancha por vos.";
+    r.className="result "+(win?"ok":"bad");
+    if(win) celebrar();
+    else document.getElementById("pptBtn").style.display="inline-block";
+  }
+  document.getElementById("pptBtn").addEventListener("click",()=>montarPpt(a));
+  document.querySelectorAll("#pptOps button").forEach(b=>{
+    b.addEventListener("click",()=>{
+      if(fin) return;
+      const i=parseInt(b.dataset.i,10);
+      const j=Math.floor(Math.random()*3);
+      const dif=(i-j+3)%3;
+      const res = dif===0 ? "empate" : dif===1 ? "punto tuyo" : "punto de la app";
+      document.getElementById("pptJugada").textContent=`${OPS[i]}  vs  ${OPS[j]}  ·  ${res}`;
+      if(dif===1) yo++; if(dif===2) app++;
+      marc();
+      if(yo>=META) cerrar(true);
+      else if(app>=META) cerrar(false);
+    });
+  });
+}
+
+/* ===== dos verdades y una mentira ===== */
+function montarMentira(a){
+  const frases=(a.frases||[]).slice(0,4);
+  if(frases.length<2){
+    cont.innerHTML=`<div class="box"><p class="note">Faltan las frases de este juego en el CONFIG.</p></div>`;
+    return;
+  }
+  cont.innerHTML=`
+    <div class="box" style="text-align:left">
+      <div class="trivia-q">Dos verdades y una mentira. Tocá la mentira:</div>
+      ${frases.map((f,i)=>`<button class="trivia-op" data-i="${i+1}">${f}</button>`).join("")}
+      <div class="result" id="menResult" style="text-align:center"></div>
+    </div>`;
+  const mentira=parseInt(a.mentira,10)||frases.length;
+  document.querySelectorAll("#actividad .trivia-op").forEach(b=>{
+    b.addEventListener("click",()=>{
+      document.querySelectorAll("#actividad .trivia-op").forEach(x=>x.disabled=true);
+      const i=parseInt(b.dataset.i,10);
+      const r=document.getElementById("menResult");
+      const bM=document.querySelector(`#actividad .trivia-op[data-i="${mentira}"]`);
+      if(bM) bM.classList.add(i===mentira?"ok":"bad");
+      if(i===mentira){
+        r.textContent=a.acierto||"Exacto, esa era la mentira.";
+        r.className="result ok";
+        celebrar();
+      } else {
+        r.textContent=a.error||"No… esa era verdad.";
+        r.className="result bad";
+      }
+    });
+  });
+}
+
+/* ===== crucigrama (el de ustedes, tablero pre-armado) ===== */
+function montarCrucigrama(a){
+  const CRUCI_DEFAULT=[
+    {w:"PULGAAVENTURERA", p:"Apodo de Sofi manejando", x:0,  y:9,  d:"H"},
+    {w:"EMILYINPARIS",    p:"Serie para ponerse en tema de París", x:11, y:0,  d:"V"},
+    {w:"MUAMUAMUA",       p:"Saludo característico de Lu", x:5,  y:1,  d:"V"},
+    {w:"YOURNAME",        p:"Primera película que vimos en el cine", x:7,  y:6,  d:"H"},
+    {w:"SUSHITOS",        p:"Viernes de…", x:8,  y:0,  d:"V"},
+    {w:"LONDRES",         p:"Destino de nuestro primer viaje", x:5,  y:11, d:"H"},
+    {w:"PSYDUCK",         p:"Pokémon de Mati con dolor de cabeza", x:1,  y:5,  d:"V"},
+    {w:"PEQUE",           p:"Apodo de Sofi", x:10, y:0,  d:"H"},
+    {w:"LOVE",            p:"Amor en New York", x:11, y:3,  d:"H"}
+  ];
+  const defs=(a.palabras&&a.palabras.length?a.palabras:CRUCI_DEFAULT);
+  const W=Math.max(...defs.map(p=>p.x+(p.d==="H"?p.w.length:1)));
+  const H=Math.max(...defs.map(p=>p.y+(p.d==="V"?p.w.length:1)));
+  const cell=Math.max(18,Math.min(24,Math.floor(336/W)));
+  const usada=Array.from({length:H},()=>Array(W).fill(null));
+  defs.forEach((p,pi)=>{
+    for(let i=0;i<p.w.length;i++){
+      const cx=p.x+(p.d==="H"?i:0), cy=p.y+(p.d==="V"?i:0);
+      if(!usada[cy][cx]) usada[cy][cx]={letra:p.w[i],num:i===0?pi+1:null,texto:""};
+      else if(i===0) usada[cy][cx].num=pi+1;
+    }
+  });
+  cont.innerHTML=`
+    <div class="box">
+      <p class="note">elegí una pista, escribí la respuesta y probá</p>
+      <div id="cruciWrap"><div id="cruciGrid"></div></div>
+      <div class="cr-pistas" id="crPistas"></div>
+      <div class="cr-input">
+        <input id="crIn" placeholder="respuesta…" autocomplete="off" autocapitalize="characters">
+        <button class="btn" id="crBtn" style="margin-top:0">Probar</button>
+      </div>
+      <div class="result" id="crResult"></div>
+    </div>`;
+  const g=document.getElementById("cruciGrid");
+  g.style.gridTemplateColumns=`repeat(${W},${cell}px)`;
+  const celdas={};
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+    const d=document.createElement("div");
+    d.className="cr-cell"+(usada[y][x]?"":" negra");
+    d.style.width=cell+"px"; d.style.height=cell+"px";
+    if(usada[y][x]&&usada[y][x].num) d.innerHTML=`<span class="num">${usada[y][x].num}</span>`;
+    g.appendChild(d);
+    celdas[x+","+y]=d;
+  }
+  const limpiarTxt=s=>String(s||"").toUpperCase().normalize("NFD").replace(/[\u0300-\u0308]/g,"").replace(/[^A-ZÑ]/g,"");
+  let activa=0; const hechas=new Set();
+  const pistasEl=[];
+  defs.forEach((p,i)=>{
+    const b=document.createElement("button");
+    b.className="cr-pista"; b.textContent=`${i+1}. ${p.p} (${p.w.length} letras, ${p.d==="H"?"→":"↓"})`;
+    b.addEventListener("click",()=>{ if(hechas.has(i))return; activa=i;
+      pistasEl.forEach(x=>x.classList.remove("activa")); b.classList.add("activa");
+      document.getElementById("crIn").focus(); });
+    document.getElementById("crPistas").appendChild(b); pistasEl.push(b);
+  });
+  pistasEl[0].classList.add("activa");
+  function probar(){
+    if(hechas.has(activa)) return;
+    const p=defs[activa];
+    const r=document.getElementById("crResult");
+    if(limpiarTxt(document.getElementById("crIn").value)===limpiarTxt(p.w)){
+      hechas.add(activa);
+      for(let i=0;i<p.w.length;i++){
+        const cx=p.x+(p.d==="H"?i:0), cy=p.y+(p.d==="V"?i:0);
+        const cel=celdas[cx+","+cy];
+        cel.classList.add("llena");
+        const num=cel.querySelector(".num");
+        cel.textContent=p.w[i];
+        if(num) cel.prepend(num);
+      }
+      pistasEl[activa].classList.remove("activa"); pistasEl[activa].classList.add("hecha");
+      document.getElementById("crIn").value="";
+      if(hechas.size===defs.length){
+        r.textContent="¡Crucigrama completo! Nos sabés de memoria.";
+        r.className="result ok"; celebrar();
+      } else {
+        r.textContent="¡Bien! Esa era."; r.className="result ok";
+        const prox=defs.findIndex((_,i)=>!hechas.has(i));
+        if(prox>=0){ activa=prox; pistasEl[prox].classList.add("activa"); }
+      }
+    } else { r.textContent="Mmm, no va ahí. Probá otra vez."; r.className="result bad"; }
+  }
+  document.getElementById("crBtn").addEventListener("click",probar);
+  document.getElementById("crIn").addEventListener("keydown",e=>{ if(e.key==="Enter")probar(); });
+  window._dbg=window._dbg||{}; window._dbg.cruci={defs,probar,setActiva:i=>activa=i,input:()=>document.getElementById("crIn")};
+}
+
+/* ===== adivinanza ===== */
+function montarAdivinanza(a){
+  cont.innerHTML=`
+    <div class="box">
+      <div class="trivia-q" style="text-align:center">${a.pista||"¿Qué será?"}</div>
+      <div class="juego-input">
+        <input id="adIn" placeholder="tu respuesta…" autocomplete="off">
+        <button class="btn" id="adBtn">Probar</button>
+      </div>
+      <div class="result" id="adResult"></div>
+    </div>`;
+  const limpiarTxt=s=>String(s||"").toUpperCase().normalize("NFD").replace(/[\u0300-\u0308]/g,"").replace(/[^A-ZÑ0-9]/g,"");
+  const probar=()=>{
+    const r=document.getElementById("adResult");
+    if(limpiarTxt(document.getElementById("adIn").value)===limpiarTxt(a.respuesta)){
+      r.textContent=a.acierto||"¡Esa es!"; r.className="result ok"; celebrar();
+    } else { r.textContent=a.error||"Frío, frío… probá de nuevo."; r.className="result bad"; }
+  };
+  document.getElementById("adBtn").addEventListener("click",probar);
+  document.getElementById("adIn").addEventListener("keydown",e=>{ if(e.key==="Enter")probar(); });
+}
+
+/* ===== adivinar por emojis ===== */
+function montarEmojis(a){
+  cont.innerHTML=`
+    <div class="box">
+      <p class="note">¿qué es?</p>
+      <div class="emo-big">${a.emojis||"❓"}</div>
+      <div style="text-align:left">
+        ${(a.opciones||[]).map((o,i)=>`<button class="trivia-op" data-i="${i+1}">${o}</button>`).join("")}
+      </div>
+      <div class="result" id="emResult"></div>
+    </div>`;
+  const correcta=parseInt(a.respuesta,10);
+  document.querySelectorAll("#actividad .trivia-op").forEach(b=>{
+    b.addEventListener("click",()=>{
+      document.querySelectorAll("#actividad .trivia-op").forEach(x=>x.disabled=true);
+      const i=parseInt(b.dataset.i,10);
+      const r=document.getElementById("emResult");
+      const bOk=document.querySelector(`#actividad .trivia-op[data-i="${correcta}"]`);
+      if(bOk) bOk.classList.add("ok");
+      if(i===correcta){ r.textContent=a.acierto||"¡Exacto!"; r.className="result ok"; celebrar(); }
+      else { b.classList.add("bad"); r.textContent=a.error||"No…"; r.className="result bad"; }
+    });
+  });
+}
+
+/* ===== ordenar la frase ===== */
+function montarOrden(a){
+  const frase=(a.frase||"TE AMO MUCHO").trim().split(/\s+/);
+  function armar(){
+    const mezcla=[...frase].sort(()=>Math.random()-0.5);
+    if(frase.length>1 && mezcla.join(" ")===frase.join(" ")) return armar();
+    return mezcla;
+  }
+  cont.innerHTML=`
+    <div class="box">
+      <p class="note">tocá las palabras en orden para armar la frase</p>
+      <div class="orden-zona" id="orZona"></div>
+      <div class="orden-chips" id="orChips"></div>
+      <div class="result" id="orResult"></div>
+      <button class="btn" id="orReset">Empezar de nuevo</button>
+    </div>`;
+  let elegidas=[];
+  function pintar(rest){
+    const z=document.getElementById("orZona"), c=document.getElementById("orChips");
+    z.innerHTML=""; c.innerHTML="";
+    elegidas.forEach((w,i)=>{
+      const b=document.createElement("button"); b.className="orden-chip"; b.textContent=w;
+      b.addEventListener("click",()=>{ elegidas.splice(i,1); rest.push(w); pintar(rest); });
+      z.appendChild(b);
+    });
+    rest.forEach((w,i)=>{
+      const b=document.createElement("button"); b.className="orden-chip"; b.textContent=w;
+      b.addEventListener("click",()=>{
+        rest.splice(i,1); elegidas.push(w); pintar(rest);
+        if(!rest.length){
+          const r=document.getElementById("orResult");
+          if(elegidas.join(" ")===frase.join(" ")){
+            r.textContent="Frase perfecta."; r.className="result ok"; celebrar();
+          } else { r.textContent="Hmm, ese orden no era…"; r.className="result bad"; }
+        }
+      });
+      c.appendChild(b);
+    });
+  }
+  let resto=armar();
+  document.getElementById("orReset").addEventListener("click",()=>{
+    elegidas=[]; resto=armar();
+    document.getElementById("orResult").textContent="";
+    pintar(resto);
+  });
+  pintar(resto);
+  window._dbg=window._dbg||{}; window._dbg.orden={frase, elegir:(w)=>{ [...document.getElementById("orChips").children].find(b=>b.textContent===w).click(); }};
+}
+
+/* ===== adivinar el número ===== */
+function montarNumero(a){
+  const MAX=Math.max(10,parseInt(a.max,10)||100);
+  const TRIES=Math.max(3,parseInt(a.intentos,10)||7);
+  let target, restan, fin;
+  cont.innerHTML=`
+    <div class="box">
+      <p class="note">pensé un número del 1 al ${MAX}. Tenés <b id="nuRestan"></b> intentos.</p>
+      <div class="juego-input">
+        <input id="nuIn" type="number" min="1" max="${MAX}" placeholder="tu número…">
+        <button class="btn" id="nuBtn">Probar</button>
+      </div>
+      <div class="result" id="nuResult"></div>
+      <button class="btn" id="nuRetry" style="display:none">Otra vez</button>
+    </div>`;
+  function empezar(){
+    target=1+Math.floor(Math.random()*MAX); restan=TRIES; fin=false;
+    document.getElementById("nuRestan").textContent=restan;
+    document.getElementById("nuResult").textContent="";
+    document.getElementById("nuRetry").style.display="none";
+    document.getElementById("nuIn").value="";
+  }
+  function probar(){
+    if(fin) return;
+    const v=parseInt(document.getElementById("nuIn").value,10);
+    const r=document.getElementById("nuResult");
+    if(!v||v<1||v>MAX){ r.textContent="Poné un número válido."; r.className="result bad"; return; }
+    restan--; document.getElementById("nuRestan").textContent=restan;
+    if(v===target){ fin=true; r.textContent=`¡${target}! Nos leemos la mente.`; r.className="result ok"; celebrar(); return; }
+    if(restan<=0){ fin=true; r.textContent=`Era ${target}… la próxima seguro.`; r.className="result bad";
+      document.getElementById("nuRetry").style.display="inline-block"; return; }
+    r.textContent = v<target ? "Más grande ↑" : "Más chico ↓";
+    r.className="result";
+    document.getElementById("nuIn").value=""; document.getElementById("nuIn").focus();
+  }
+  document.getElementById("nuBtn").addEventListener("click",probar);
+  document.getElementById("nuIn").addEventListener("keydown",e=>{ if(e.key==="Enter")probar(); });
+  document.getElementById("nuRetry").addEventListener("click",empezar);
+  empezar();
+  window._dbg=window._dbg||{}; window._dbg.numero={get:()=>target};
+}
+
+/* ===== test de reacción ===== */
+function montarReaccion(){
+  const RONDAS=3, LIMITE=650;
+  cont.innerHTML=`
+    <div class="box">
+      <p class="note">cuando la caja se ponga verde, tocala lo más rápido que puedas. ${RONDAS} rondas.</p>
+      <div id="reacZona"><span id="reacTxt">tocá para empezar</span><span id="reacSub" style="font-size:.8rem;font-weight:600;color:var(--ink-soft)"></span></div>
+      <div class="result" id="reacResult"></div>
+    </div>`;
+  const z=document.getElementById("reacZona");
+  let estado="inicio", timer=null, t0=0, tiempos=[];
+  const txt=(a,b)=>{ document.getElementById("reacTxt").textContent=a; document.getElementById("reacSub").textContent=b||""; };
+  function esperar(){
+    estado="esperando"; z.className="esperando"; z.id="reacZona";
+    txt("esperá…", `ronda ${tiempos.length+1} de ${RONDAS}`);
+    timer=setTimeout(()=>{ estado="listo"; z.classList.remove("esperando"); z.classList.add("listo"); txt("¡TOCÁ!"); t0=Date.now(); },900+Math.random()*2100);
+  }
+  function ganarR(){ 
+    const r=document.getElementById("reacResult");
+    const avg=Math.round(tiempos.reduce((s,x)=>s+x,0)/tiempos.length);
+    if(avg<=LIMITE){ r.textContent=`Promedio ${avg}ms. Reflejos de gata.`; r.className="result ok"; celebrar(); }
+    else { r.textContent=`Promedio ${avg}ms… casi. Tocá para reintentar.`; r.className="result bad"; }
+    estado="inicio"; z.className=""; txt("tocá para empezar de nuevo");
+    tiempos=[];
+  }
+  z.addEventListener("click",()=>{
+    if(estado==="inicio"){ document.getElementById("reacResult").textContent=""; esperar(); return; }
+    if(estado==="esperando"){ clearTimeout(timer); z.className=""; txt("¡muy pronto! tocá para reintentar la ronda"); estado="inicio2"; return; }
+    if(estado==="inicio2"){ esperar(); return; }
+    if(estado==="listo"){
+      tiempos.push(Date.now()-t0);
+      z.classList.remove("listo");
+      if(tiempos.length>=RONDAS){ ganarR(); }
+      else esperar();
+    }
+  });
+  window._dbg=window._dbg||{}; window._dbg.reaccion={win:()=>{ tiempos=[200,200,200]; ganarR(); }};
+}
+
+/* ===== topo (whack-a-mole) ===== */
+function montarTopo(a){
+  const META=Math.max(5,parseInt(a.aciertos,10)||10), DUR=25;
+  cont.innerHTML=`
+    <div class="box">
+      <div class="atrapar-hud"><span id="tpPts">🐹 0 / ${META}</span><span id="tpTiempo">${DUR}s</span></div>
+      <div id="topoGrid"></div>
+      <div class="result" id="tpResult"></div>
+      <button class="btn" id="tpBtn">Jugar</button>
+    </div>`;
+  const g=document.getElementById("topoGrid");
+  const hoyos=[];
+  for(let i=0;i<9;i++){
+    const h=document.createElement("button");
+    h.className="topo-hoyo"; h.textContent="";
+    h.addEventListener("click",()=>{
+      if(!activo||h.textContent!=="🐹") return;
+      pts++; h.textContent="💥";
+      setTimeout(()=>{ if(h.textContent==="💥") h.textContent=""; },200);
+      document.getElementById("tpPts").textContent=`🐹 ${pts} / ${META}`;
+      if(pts>=META) terminar(true);
+    });
+    g.appendChild(h); hoyos.push(h);
+  }
+  let pts=0, resta=DUR, activo=false, spawner=null, reloj=null;
+  function limpiar(){ clearInterval(spawner); clearInterval(reloj); activo=false; hoyos.forEach(h=>h.textContent=""); }
+  function terminar(win){
+    limpiar();
+    const r=document.getElementById("tpResult");
+    r.textContent = win ? "¡Los agarraste a todos!" : `${pts} de ${META}… se te escaparon.`;
+    r.className="result "+(win?"ok":"bad");
+    if(win) celebrar();
+    else { const b=document.getElementById("tpBtn"); b.style.display="inline-block"; b.textContent="Reintentar"; }
+  }
+  window._dbg=window._dbg||{}; window._dbg.topo={win:()=>{pts=META;terminar(true);}};
+  document.getElementById("tpBtn").addEventListener("click",function(){
+    this.style.display="none";
+    document.getElementById("tpResult").textContent="";
+    pts=0; resta=DUR; activo=true;
+    document.getElementById("tpPts").textContent=`🐹 0 / ${META}`;
+    document.getElementById("tpTiempo").textContent=DUR+"s";
+    spawner=setInterval(()=>{
+      hoyos.forEach(h=>{ if(h.textContent==="🐹") h.textContent=""; });
+      hoyos[Math.floor(Math.random()*9)].textContent="🐹";
+    },720);
+    reloj=setInterval(()=>{
+      resta--; document.getElementById("tpTiempo").textContent=resta+"s";
+      if(resta<=0) terminar(pts>=META);
+    },1000);
+  });
+}
+
+/* ===== cajafuerte (descifrar el código) ===== */
+function montarCajafuerte(a){
+  const CODE=String(a.codigo||"1234").replace(/\D/g,"");
+  const L=CODE.length, MAXT=6;
+  cont.innerHTML=`
+    <div class="box">
+      <p class="note">🔐 código de ${L} dígitos, ${MAXT} intentos.${a.pista?` Pista: <b>${a.pista}</b>`:""}</p>
+      <div class="caja-intentos" id="cjIntentos"></div>
+      <div class="juego-input">
+        <input id="cjIn" type="tel" inputmode="numeric" maxlength="${L}" placeholder="${"•".repeat(L)}">
+        <button class="btn" id="cjBtn">Probar</button>
+      </div>
+      <p class="note" style="margin-top:8px">🟩 dígito correcto en su lugar · 🟨 está pero en otro lugar</p>
+      <div class="result" id="cjResult"></div>
+      <button class="btn" id="cjRetry" style="display:none">Otra vez</button>
+    </div>`;
+  let usados=0, fin=false;
+  function probar(){
+    if(fin) return;
+    const v=String(document.getElementById("cjIn").value||"").replace(/\D/g,"");
+    const r=document.getElementById("cjResult");
+    if(v.length!==L){ r.textContent=`Tienen que ser ${L} dígitos.`; r.className="result bad"; return; }
+    usados++;
+    const fila=document.createElement("div"); fila.className="caja-fila";
+    const restoCode=CODE.split(""), marca=Array(L).fill("no");
+    for(let i=0;i<L;i++) if(v[i]===CODE[i]){ marca[i]="ok"; restoCode[i]=null; }
+    for(let i=0;i<L;i++) if(marca[i]==="no"){ const j=restoCode.indexOf(v[i]); if(j>=0){ marca[i]="casi"; restoCode[j]=null; } }
+    for(let i=0;i<L;i++){
+      const d=document.createElement("div");
+      d.className="caja-dig"+(marca[i]==="ok"?" ok":marca[i]==="casi"?" casi":"");
+      d.textContent=v[i]; fila.appendChild(d);
+    }
+    document.getElementById("cjIntentos").appendChild(fila);
+    document.getElementById("cjIn").value="";
+    if(v===CODE){ fin=true; r.textContent="🔓 ¡Abierta! Sabés demasiado."; r.className="result ok"; celebrar(); return; }
+    if(usados>=MAXT){ fin=true; r.textContent="Se trabó la caja… reintentá."; r.className="result bad";
+      document.getElementById("cjRetry").style.display="inline-block"; return; }
+    r.textContent=`Intento ${usados} de ${MAXT}.`; r.className="result";
+  }
+  document.getElementById("cjBtn").addEventListener("click",probar);
+  document.getElementById("cjIn").addEventListener("keydown",e=>{ if(e.key==="Enter")probar(); });
+  document.getElementById("cjRetry").addEventListener("click",()=>montarCajafuerte(a));
+  window._dbg=window._dbg||{}; window._dbg.caja={code:CODE,probar,input:()=>document.getElementById("cjIn")};
+}
+
+/* ===== verdad o falso ===== */
+function montarVerdadFalso(a){
+  const frases=(a.frases||[]).filter(f=>f&&f.t);
+  if(frases.length<2){
+    cont.innerHTML=`<div class="box"><p class="note">Faltan las frases de este juego en el CONFIG.</p></div>`;
+    return;
+  }
+  let i=0, ok=0;
+  cont.innerHTML=`
+    <div class="box">
+      <div class="vf-prog" id="vfProg"></div>
+      <div class="vf-frase" id="vfFrase"></div>
+      <div class="vf-btns">
+        <button class="btn" id="vfV">Verdadero</button>
+        <button class="btn" id="vfF" style="background:var(--key);color:var(--ink);border:1px solid var(--card-border)">Falso</button>
+      </div>
+      <div class="result" id="vfResult"></div>
+      <button class="btn" id="vfRetry" style="display:none">Otra vez</button>
+    </div>`;
+  function pintar(){
+    document.getElementById("vfProg").textContent=`${i+1} / ${frases.length}`;
+    document.getElementById("vfFrase").textContent=frases[i].t;
+  }
+  function responder(v){
+    if(i>=frases.length) return;
+    if(v===!!frases[i].v) ok++;
+    i++;
+    if(i<frases.length){ pintar(); return; }
+    const r=document.getElementById("vfResult");
+    document.getElementById("vfFrase").textContent="";
+    document.getElementById("vfProg").textContent="";
+    if(ok===frases.length){ r.textContent=`${ok}/${frases.length}. Perfecto, nos conocés entero.`; r.className="result ok"; celebrar(); }
+    else { r.textContent=`${ok} de ${frases.length}… se puede mejorar 😏`; r.className="result bad";
+      document.getElementById("vfRetry").style.display="inline-block"; }
+  }
+  document.getElementById("vfV").addEventListener("click",()=>responder(true));
+  document.getElementById("vfF").addEventListener("click",()=>responder(false));
+  document.getElementById("vfRetry").addEventListener("click",()=>montarVerdadFalso(a));
+  pintar();
+}
+
+/* ===== el intruso (encontrá el emoji distinto) ===== */
+function montarIntruso(a){
+  const PARES=[["🌚","🌝"],["😺","😸"],["🐶","🦊"],["🍪","🥮"],["⭐","🌟"],["💙","💜"],["🐻","🐨"],["🌸","💮"]];
+  const NIVELES=Math.min(5,Math.max(1,parseInt(a&&a.niveles,10)||3));
+  let nivel=0;
+  cont.innerHTML=`
+    <div class="box">
+      <p class="note" id="inNote"></p>
+      <div id="intrusoGrid"></div>
+      <div class="result" id="inResult"></div>
+    </div>`;
+  function pintar(){
+    const [base,raro]=PARES[Math.floor(Math.random()*PARES.length)];
+    const N=4+nivel;
+    document.getElementById("inNote").textContent=`nivel ${nivel+1} de ${NIVELES}: tocá el que es distinto`;
+    const g=document.getElementById("intrusoGrid");
+    g.style.gridTemplateColumns=`repeat(${Math.min(N,5)},52px)`;
+    g.innerHTML="";
+    const total=Math.min(N,5)*Math.min(N,5);
+    const idxRaro=Math.floor(Math.random()*total);
+    for(let i=0;i<total;i++){
+      const c=document.createElement("button");
+      c.className="in-cel"; c.textContent=i===idxRaro?raro:base;
+      c.addEventListener("click",()=>{
+        if(i!==idxRaro) return;
+        nivel++;
+        if(nivel>=NIVELES){
+          const r=document.getElementById("inResult");
+          r.textContent="Ojo de águila. Los encontraste todos.";
+          r.className="result ok";
+          document.getElementById("intrusoGrid").innerHTML="";
+          document.getElementById("inNote").textContent="";
+          celebrar();
+        } else pintar();
+      });
+      g.appendChild(c);
+    }
+  }
+  pintar();
+  window._dbg=window._dbg||{}; window._dbg.intruso={win:()=>{ nivel=NIVELES-1; const raro=[...document.querySelectorAll('.in-cel')].find((c,i,arr)=>arr.filter(x=>x.textContent===c.textContent).length===1); if(raro) raro.click(); }};
+}
+
+/* ===== nota de voz ===== */
+function montarAudio(a){
+  cont.innerHTML=`
+    <div class="box">
+      <div class="tag" style="font-size:.68rem;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--acc);margin-bottom:10px">✦ Nota de voz ✦</div>
+      ${a.texto?`<div class="mision-txt" style="margin-bottom:12px">${a.texto}</div>`:""}
+      <audio controls preload="metadata" style="width:100%;border-radius:12px"
+        onerror="this.parentElement.querySelector('.result').textContent='No encontré el audio ${a.archivo||""}. ¿Está subido al repositorio?'">
+        <source src="${a.archivo||""}">
+      </audio>
+      <div class="result"></div>
+    </div>`;
 }
 
 /* ===== trivia ===== */
