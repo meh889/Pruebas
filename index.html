@@ -49,7 +49,12 @@ const CONFIG = {
        { tipo: "memoria",  emojis: ["⭐","🎬","🍕","🌙"] }
        { tipo: "ruleta",   titulo:"...", opciones:["A","B","C"] }
        { tipo: "rascar",   premio: "texto escondido" }
-       { tipo: "simon",    rondas: 5 }        repetir secuencia de colores
+       { tipo: "simon",    rondas: 10,
+         sonidos: { acierto: "simon-ok.wav", error: "simon-err.wav" } }
+                           (repetir secuencia; desde la ronda 7 acelera 5%
+                            por ronda; los sonidos son opcionales: si subís
+                            simon-ok.wav y simon-err.wav al repo suenan solos,
+                            o poné acá tus propios archivos)
        { tipo: "atrapar",  objetivo: 12 }     cazar estrellas en 30s
        { tipo: "puzzle" }                     rompecabezas deslizante
        { tipo: "ppt",      rondas: 3 }        piedra papel tijera
@@ -158,29 +163,30 @@ const CONFIG = {
       mensaje: "Si te resultaba dificil armar notitas 1 vez por semana no sabes lo dificil que es todos los dias jajaja. Mañana nos vemos, yey. Me gusta que me des feedback eh, acepto sugerencias de MafiApp.",
       actividad: { tipo: "memoria", emojis: ["⭐","🎬","🍕","🌙","🍣","🗼"] }
     },
-    "2026-08-05": {
-  modo: "papel",
-  sellado: true,
-  mensaje: "Hoy tenés tarea.",
-  actividad: { tipo: "crucigrama" }
-    },
-     "2026-08-07": {
-      sellado: true,
-      mensaje: "Ganaste de nuevo. Empiezo a sospechar que sos más inteligente que yo. Confirmado, en realidad.",
-      actividad: { tipo: "topo", aciertos: 10 }
+     "2026-08-05": {
+      mensaje: "Una rascadita y PUM, Premio!",
+      actividad: { tipo: "rascar", premio: "Vale por 5 minutos de masajitos." }
     },
     "2026-08-06": {
-      mensaje: "Encontré este video y me acordé de vos al instante. Miralo con auriculares.",
-      // CAMBIÁ este link por el video que quieras mostrarle
-      actividad: { tipo: "video", url: "https://www.youtube.com/watch?v=kJQP7kiw5Fk", titulo: "Para vos" }
+  modo: "papel",
+  sellado: true,
+  mensaje: "Yey, ahora el de La Nacion, mandame tiempo y competimosss. Te amooo",
+  actividad: { tipo: "crucigrama" }
+    },
+    "2026-08-07": {
+      sellado: true,
+      mensaje: "Diez rondas de secuencia. Aviso: del nivel 7 en adelante se pone rápido. Suerte.",
+      actividad: { tipo: "simon", rondas: 10 }
     },
     "2026-08-08": {
-      mensaje: "Hoy la app viene con premio escondido. Usá el dedo, como los raspaditas del kiosco.",
-      actividad: { tipo: "rascar", premio: "🍦 Vale por un helado de los grandes. Pago yo, elegís vos." }
+      sellado: true,
+      mensaje: "Reflejos de viernes: los topos no se agarran solos.",
+      actividad: { tipo: "topo", aciertos: 10 }
     },
     "2026-08-09": {
-      mensaje: "Domingo. Día internacional de no hacer nada, pero juntos.",
-      actividad: { tipo: "atrapar", objetivo: 12 }
+      sellado: true,
+      mensaje: "Domingo de ordenar cosas. Empezá por estas piezas.",
+      actividad: { tipo: "puzzle" }
     },
     "2026-08-10": {
       modo: "papel",   // CAMBIO RADICAL 2: modo diario de papel
@@ -256,6 +262,11 @@ const CONFIG = {
       mensaje: "Sábado de video. Este me hizo reír y necesitaba que lo veas.",
       // CAMBIÁ este link por el video que quieras
       actividad: { tipo: "video", url: "https://www.youtube.com/watch?v=kJQP7kiw5Fk", titulo: "Mirá esto y decime que no somos nosotros" }
+    },
+    "2026-08-23": {
+      sellado: true,
+      mensaje: "Ganaste de nuevo. Empiezo a sospechar que sos más inteligente que yo. Confirmado, en realidad.",
+      actividad: { tipo: "topo", aciertos: 10 }
     },
     "2026-08-24": {
       mensaje: "Lunes. Nadie merece un lunes. Tomá, para amortiguar:",
@@ -1343,8 +1354,15 @@ function montarRascar(a){
 
 /* ===== simon (repetir la secuencia) ===== */
 function montarSimon(a){
-  const META=Math.min(10,Math.max(2,parseInt(a.rondas,10)||5));
+  const META=Math.min(15,Math.max(2,parseInt(a.rondas,10)||5));
   const COLS=["#E86A7C","#5FC49E","#6FA8DC","#E4B75B"];
+  const SND=a.sonidos||{};
+  const sonar=t=>{
+    const f = t==="ok" ? (SND.acierto||"simon-ok.wav") : (SND.error||"simon-err.wav");
+    try{ const au=new Audio(f); au.volume=0.55; au.play().catch(()=>{}); }catch(e){}
+  };
+  // velocidad: normal hasta la ronda 6; desde la 7 acelera 5% por ronda (7=5%, 8=10%, 9=15%, 10=20%)
+  const velocidad=n=>1-0.05*Math.max(0,Math.min(n,10)-6);
   cont.innerHTML=`
     <div class="box">
       <div class="simon-ronda" id="siRonda"></div>
@@ -1360,10 +1378,15 @@ function montarSimon(a){
     pads.push(p);
   });
   let seq=[], paso=0, esperando=false, jugando=false;
-  const ronda=()=>document.getElementById("siRonda").textContent=`ronda ${seq.length} de ${META}`;
+  const ronda=()=>{
+    const v=velocidad(seq.length);
+    document.getElementById("siRonda").textContent=
+      `ronda ${seq.length} de ${META}`+(v<1?` · velocidad +${Math.round((1-v)*100)}%`:"");
+  };
   const prender=(i,ms)=>new Promise(r=>{
+    const v=velocidad(seq.length);
     pads[i].classList.add("lit");
-    setTimeout(()=>{ pads[i].classList.remove("lit"); setTimeout(r,140); },ms);
+    setTimeout(()=>{ pads[i].classList.remove("lit"); setTimeout(r,Math.round(140*v)); },Math.round(ms*v));
   });
   async function mostrar(){
     esperando=false;
@@ -1377,9 +1400,10 @@ function montarSimon(a){
     r.className="result ok";
     celebrar();
   }
-  window._dbg=window._dbg||{}; window._dbg.simon={win:ganar};
+  window._dbg=window._dbg||{}; window._dbg.simon={win:ganar, vel:velocidad};
   function perder(){
     jugando=false; esperando=false;
+    sonar("error");
     const r=document.getElementById("siResult");
     r.textContent="Uy, no era ese. Probá de nuevo.";
     r.className="result bad";
@@ -1396,13 +1420,14 @@ function montarSimon(a){
     const i=parseInt(p.dataset.i,10);
     p.classList.add("lit"); setTimeout(()=>p.classList.remove("lit"),200);
     if(i!==seq[paso]){ perder(); return; }
+    sonar("ok");
     paso++;
     if(paso===seq.length){
       if(seq.length>=META){ ganar(); return; }
       esperando=false;
       seq.push(Math.floor(Math.random()*4));
       ronda();
-      setTimeout(mostrar,650);
+      setTimeout(mostrar,Math.round(650*velocidad(seq.length)));
     }
   }));
 }
