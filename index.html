@@ -1386,6 +1386,24 @@ function montarSimon(a){
     const f = k==="ok" ? (SND.acierto||"simon-ok.m4a") : (SND.error||"simon-err.m4a");
     try{ const au=new Audio(f); au.volume=0.55; au.play().catch(()=>{}); }catch(e){}
   };
+  /* tonos clásicos del Simon original: cada pad tiene su nota
+     (Mi3, La3, Do#4, Mi4 = acorde de La mayor), sintetizadas en vivo */
+  const NOTAS=[164.81, 220.0, 277.18, 329.63];
+  const tono=(i,dur)=>{
+    try{
+      if(!actx) actx=new (window.AudioContext||window.webkitAudioContext)();
+      if(actx.state==="suspended") actx.resume();
+      const t0=actx.currentTime, seg=Math.max(0.1,dur/1000);
+      const osc=actx.createOscillator(), g=actx.createGain();
+      osc.type="square"; osc.frequency.value=NOTAS[i]||220;
+      g.gain.setValueAtTime(0.0001,t0);
+      g.gain.exponentialRampToValueAtTime(0.14,t0+0.015);
+      g.gain.setValueAtTime(0.14,t0+seg-0.05);
+      g.gain.exponentialRampToValueAtTime(0.0001,t0+seg);
+      osc.connect(g); g.connect(actx.destination);
+      osc.start(t0); osc.stop(t0+seg+0.02);
+    }catch(e){}
+  };
   // velocidad: normal hasta la ronda 6; desde la 7 acelera 5% por ronda (7=5%, 8=10%, 9=15%, 10=20%)
   const velocidad=n=>1-0.05*Math.max(0,Math.min(n,10)-6);
   cont.innerHTML=`
@@ -1410,6 +1428,7 @@ function montarSimon(a){
   };
   const prender=(i,ms)=>new Promise(r=>{
     const v=velocidad(seq.length);
+    tono(i,ms*v);
     pads[i].classList.add("lit");
     setTimeout(()=>{ pads[i].classList.remove("lit"); setTimeout(r,Math.round(140*v)); },Math.round(ms*v));
   });
