@@ -1358,7 +1358,7 @@ function montarSimon(a){
   const COLS=["#E86A7C","#5FC49E","#6FA8DC","#E4B75B"];
   const SND=a.sonidos||{};
   const sonar=t=>{
-    const f = t==="ok" ? (SND.acierto||"simon-ok.wav") : (SND.error||"simon-err.wav");
+    const f = t==="ok" ? (SND.acierto||"simon-ok.m4a") : (SND.error||"simon-err.m4a");
     try{ const au=new Audio(f); au.volume=0.55; au.play().catch(()=>{}); }catch(e){}
   };
   // velocidad: normal hasta la ronda 6; desde la 7 acelera 5% por ronda (7=5%, 8=10%, 9=15%, 10=20%)
