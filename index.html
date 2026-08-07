@@ -606,30 +606,71 @@ header .fecha{
 .ppt-marcador{font-weight:700;color:var(--acc);font-size:1rem;margin-top:6px}
 .ppt-jugada{font-size:1.5rem;min-height:1.6em;margin-top:8px}
 
-/* ================== LORO ================== */
-.loro-escena{text-align:center;padding:12px 0 4px;position:relative}
-#loroSvg{width:min(78vw,320px);height:auto;cursor:pointer;transition:transform .12s ease}
-#loroSvg:active{transform:scale(.96)}
-.loro-cuerpo-anim{transform-origin:50% 70%;animation:loroMecer 3.6s ease-in-out infinite}
-@keyframes loroMecer{0%,100%{transform:rotate(-1.6deg) translateY(0)}50%{transform:rotate(1.6deg) translateY(-6px)}}
-.loro-ala{transform-origin:118px 150px;transition:transform .18s ease}
-.loro-habla .loro-ala{animation:aletear .5s ease}
-@keyframes aletear{0%,100%{transform:rotate(0)}30%{transform:rotate(-38deg)}60%{transform:rotate(8deg)}}
-.loro-pico-inf{transform-origin:158px 108px;transition:transform .12s ease}
-.loro-habla .loro-pico-inf{animation:picoAbrir .5s ease}
-@keyframes picoAbrir{0%,100%{transform:rotate(0)}35%{transform:rotate(14deg)}70%{transform:rotate(6deg)}}
-.loro-parpado{transform-origin:132px 84px;animation:parpadeo 4.6s infinite}
-@keyframes parpadeo{0%,94%,100%{transform:scaleY(0)}96%,98%{transform:scaleY(1)}}
-.loro-cola{transform-origin:56px 176px;animation:colear 3.6s ease-in-out infinite}
-@keyframes colear{0%,100%{transform:rotate(2.5deg)}50%{transform:rotate(-2.5deg)}}
+/* ================== LORO (deluxe) ================== */
+.loro-escena{text-align:center;padding:10px 0 4px;position:relative}
+#loroSvg{width:min(86vw,340px);height:auto;cursor:pointer;transition:transform .12s ease}
+#loroSvg:active{transform:scale(.965)}
+#loroSvg [class^="l-"], #loroSvg [class*=" l-"]{transform-box:fill-box}
+/* mecida general, como colgado de la rama */
+.l-todo{transform-origin:50% 94%;animation:lMecer 4.4s ease-in-out infinite}
+@keyframes lMecer{0%,100%{transform:rotate(-1.4deg)}50%{transform:rotate(1.4deg)}}
+/* respiración del cuerpo */
+.l-cuerpo-g{transform-origin:50% 85%;animation:lRespirar 3.1s ease-in-out infinite}
+@keyframes lRespirar{0%,100%{transform:scale(1,1)}50%{transform:scale(1.012,1.028)}}
+/* cabeceo curioso, con pausas */
+.l-cabeza{transform-origin:35% 95%;animation:lCabecear 6.8s ease-in-out infinite}
+@keyframes lCabecear{0%,55%,100%{transform:rotate(0)}62%{transform:rotate(-4deg)}70%{transform:rotate(-4deg)}78%{transform:rotate(2.5deg)}86%{transform:rotate(0)}}
+/* cola con vaivén propio */
+.l-cola{transform-origin:80% 8%;animation:lColear 3.7s ease-in-out infinite}
+@keyframes lColear{0%,100%{transform:rotate(2.4deg)}50%{transform:rotate(-2.8deg)}}
+/* parpadeo doble ocasional */
+.l-parpado{transform-origin:50% 50%;transform:scaleY(0);animation:lParpadeo 5.2s infinite}
+@keyframes lParpadeo{0%,90.5%,93.5%,95.5%,98.5%,100%{transform:scaleY(0)}91.5%,92.5%{transform:scaleY(1)}96.5%,97.5%{transform:scaleY(1)}}
+/* mirada de reojo cada tanto */
+.l-pupila{animation:lMirar 7.6s ease-in-out infinite}
+@keyframes lMirar{0%,58%,86%,100%{transform:translateX(0)}64%,78%{transform:translateX(-2.6px)}}
+/* micro-movimiento del ala y la cresta en reposo */
+.l-ala-g{animation:lAlaIdle 5.6s ease-in-out infinite}
+@keyframes lAlaIdle{0%,100%{transform:rotate(0)}50%{transform:rotate(-2deg)}}
+.l-cresta{animation:lCrestaIdle 4.8s ease-in-out infinite}
+@keyframes lCrestaIdle{0%,100%{transform:rotate(-1.5deg)}50%{transform:rotate(2deg)}}
+/* --- al hablar --- */
+.loro-habla .l-squash{transform-origin:50% 90%;animation:lSquash .55s ease}
+@keyframes lSquash{0%,100%{transform:scale(1,1)}30%{transform:scale(1.045,.94)}60%{transform:scale(.985,1.02)}}
+.loro-habla .l-pico-inf{animation:lPicoInf .55s ease}
+.l-pico-inf{transform-origin:12% 20%}
+@keyframes lPicoInf{0%,100%{transform:rotate(0)}30%{transform:rotate(16deg)}55%{transform:rotate(7deg)}80%{transform:rotate(12deg)}}
+.loro-habla .l-pico-sup{animation:lPicoSup .55s ease}
+.l-pico-sup{transform-origin:10% 80%}
+@keyframes lPicoSup{0%,100%{transform:rotate(0)}30%{transform:rotate(-5deg)}60%{transform:rotate(-2deg)}}
+.loro-habla .l-ala-g{animation:lAletear .62s ease}
+.l-ala-g{transform-origin:22% 12%}
+@keyframes lAletear{0%,100%{transform:rotate(0)}28%{transform:rotate(-44deg)}55%{transform:rotate(10deg)}78%{transform:rotate(-8deg)}}
+.loro-habla .l-af2{animation:lPluma .62s ease}
+.loro-habla .l-af3{animation:lPluma .62s ease .06s}
+.l-af2,.l-af3{transform-origin:20% 15%}
+@keyframes lPluma{0%,100%{transform:rotate(0)}35%{transform:rotate(-9deg)}65%{transform:rotate(4deg)}}
+.loro-habla .l-cresta{animation:lCresta .55s ease}
+.l-cresta{transform-origin:50% 100%}
+@keyframes lCresta{0%,100%{transform:scale(1) translateY(0)}35%{transform:scale(1.12,1.25) translateY(-3px)}}
+/* partículas */
 .loro-nota{
-  position:absolute;font-size:1.5rem;color:var(--acc);pointer-events:none;
-  animation:notaSube 1.3s ease-out forwards;
+  position:absolute;font-size:1.6rem;color:var(--acc);pointer-events:none;
+  animation:notaSube 1.4s ease-out forwards;text-shadow:0 2px 8px rgba(0,0,0,.25);
+}
+.loro-chispa{
+  position:absolute;font-size:.9rem;color:var(--acc);pointer-events:none;
+  animation:chispaPop .9s ease-out forwards;
 }
 @keyframes notaSube{
-  0%{opacity:0;transform:translateY(0) rotate(0)}
+  0%{opacity:0;transform:translateY(6px) rotate(-6deg) scale(.7)}
   15%{opacity:1}
-  100%{opacity:0;transform:translateY(-90px) rotate(18deg)}
+  100%{opacity:0;transform:translateY(-100px) rotate(16deg) scale(1.15)}
+}
+@keyframes chispaPop{
+  0%{opacity:0;transform:scale(.3)}
+  30%{opacity:1;transform:scale(1.25)}
+  100%{opacity:0;transform:scale(.5) translateY(-26px)}
 }
 .loro-hint{
   color:var(--ink-soft);font-family:var(--serif);font-style:italic;
@@ -2181,35 +2222,111 @@ function montarLoro(a){
   const lista=(a.audios&&a.audios.length?a.audios:["loro1.m4a","loro2.m4a","loro3.m4a"]);
   cont.innerHTML=`
     <div class="loro-escena" id="loroEscena">
-      <svg id="loroSvg" viewBox="0 0 220 260" role="button" aria-label="Tocá al loro">
-        <g class="loro-cuerpo-anim">
-          <!-- cola -->
-          <g class="loro-cola">
-            <path d="M62 172 C30 200 18 236 26 252 C40 244 58 226 74 200 Z" fill="#2E86C1"/>
-            <path d="M70 176 C48 204 42 234 48 250 C60 240 74 220 86 198 Z" fill="#F1C40F"/>
+      <svg id="loroSvg" viewBox="0 0 260 305" role="button" aria-label="Tocá al loro">
+        <defs>
+          <linearGradient id="lgRojo" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#FF6A55"/><stop offset=".55" stop-color="#E8402F"/><stop offset="1" stop-color="#B7291B"/>
+          </linearGradient>
+          <linearGradient id="lgPecho" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#FF9C7E"/><stop offset="1" stop-color="#E85A40"/>
+          </linearGradient>
+          <linearGradient id="lgAzul" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#57A6FF"/><stop offset="1" stop-color="#1F5FBF"/>
+          </linearGradient>
+          <linearGradient id="lgAmar" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#FFE082"/><stop offset="1" stop-color="#F2B705"/>
+          </linearGradient>
+          <linearGradient id="lgPico" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#C3CAD2"/><stop offset="1" stop-color="#79828C"/>
+          </linearGradient>
+          <linearGradient id="lgRama" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#9A6534"/><stop offset="1" stop-color="#6E4520"/>
+          </linearGradient>
+        </defs>
+
+        <!-- sombra -->
+        <ellipse cx="130" cy="295" rx="82" ry="8" fill="#000" opacity=".17"/>
+
+        <g class="l-todo">
+          <g class="l-squash">
+
+            <!-- cola: tres plumas largas en capas -->
+            <g class="l-cola">
+              <path d="M84 232 C58 258 46 286 50 300 C64 292 82 268 96 244 Z" fill="url(#lgAzul)"/>
+              <path d="M94 236 C74 262 66 288 70 300 C82 292 96 272 106 250 Z" fill="url(#lgAmar)"/>
+              <path d="M104 240 C90 262 84 286 88 298 C98 290 108 274 116 254 Z" fill="url(#lgRojo)"/>
+            </g>
+
+            <!-- rama con hojas -->
+            <rect x="24" y="266" width="212" height="14" rx="7" fill="url(#lgRama)"/>
+            <path d="M28 268 q10 -3 20 0 M212 268 q10 -3 20 0" stroke="#5A3818" stroke-width="2" fill="none" opacity=".5"/>
+            <g fill="#4E9B4E">
+              <ellipse cx="38" cy="260" rx="13" ry="6" transform="rotate(-24 38 260)"/>
+              <ellipse cx="50" cy="266" rx="11" ry="5" transform="rotate(12 50 266)"/>
+              <ellipse cx="224" cy="260" rx="13" ry="6" transform="rotate(24 224 260)"/>
+              <ellipse cx="212" cy="266" rx="11" ry="5" transform="rotate(-12 212 266)"/>
+            </g>
+            <g fill="#E8402F">
+              <circle cx="45" cy="259" r="3"/><circle cx="51" cy="256" r="2.6"/><circle cx="49" cy="262.5" r="2.4"/>
+            </g>
+
+            <!-- garras -->
+            <g stroke="#6E747C" stroke-width="6" stroke-linecap="round" fill="none">
+              <path d="M112 246 L112 262 M104 262 q8 8 0 10 M112 262 q8 7 2 11 M120 262 q6 8 -1 11"/>
+              <path d="M148 246 L148 262 M140 262 q8 8 0 10 M148 262 q8 7 2 11 M156 262 q6 8 -1 11"/>
+            </g>
+
+            <!-- cuerpo -->
+            <g class="l-cuerpo-g">
+              <ellipse cx="130" cy="180" rx="62" ry="80" fill="url(#lgRojo)"/>
+              <path d="M76 196 C80 244 106 260 128 257 C102 256 86 232 84 194 Z" fill="#8E1E12" opacity=".4"/>
+              <ellipse cx="124" cy="202" rx="38" ry="52" fill="url(#lgPecho)"/>
+              <!-- textura de plumitas del pecho -->
+              <g stroke="#C24333" stroke-width="2" fill="none" opacity=".5">
+                <path d="M104 190 q10 8 22 0 M114 208 q10 8 22 0 M104 226 q10 8 22 0"/>
+              </g>
+            </g>
+
+            <!-- ala en capas -->
+            <g class="l-ala-g">
+              <path d="M144 150 C212 156 232 212 204 260 C180 240 152 220 138 192 Z" fill="#B7291B"/>
+              <path class="l-af2" d="M152 164 C204 172 220 216 202 250 C182 232 160 214 150 193 Z" fill="url(#lgAzul)"/>
+              <path class="l-af3" d="M158 178 C196 186 208 218 194 242 C180 228 164 214 156 198 Z" fill="url(#lgAmar)"/>
+            </g>
+
+            <!-- cabeza -->
+            <g class="l-cabeza">
+              <!-- cresta -->
+              <g class="l-cresta" fill="url(#lgRojo)">
+                <path d="M108 52 q4 -18 14 -20 q2 12 -4 22 Z"/>
+                <path d="M124 46 q6 -20 16 -20 q0 14 -8 24 Z"/>
+                <path d="M140 46 q10 -16 18 -14 q-2 12 -12 20 Z"/>
+              </g>
+              <circle cx="138" cy="95" r="48" fill="url(#lgRojo)"/>
+              <ellipse cx="120" cy="70" rx="19" ry="13" fill="#FF9B85" opacity=".38"/>
+              <!-- parche facial blanco (marca de guacamayo) -->
+              <ellipse cx="156" cy="100" rx="27" ry="31" fill="#FDF6EE"/>
+              <ellipse cx="147" cy="108" rx="6.5" ry="5" fill="#F2A29B" opacity=".5"/>
+              <!-- ojo -->
+              <circle cx="150" cy="88" r="8.5" fill="#F7C948"/>
+              <g class="l-pupila">
+                <circle cx="150" cy="88" r="4.6" fill="#17202A"/>
+                <circle cx="152.2" cy="85.6" r="1.9" fill="#fff"/>
+              </g>
+              <ellipse class="l-parpado" cx="150" cy="88" rx="9.6" ry="9.2" fill="#E8402F"/>
+              <!-- ceja/plumita -->
+              <path d="M140 76 q10 -6 20 -2" stroke="#B7291B" stroke-width="3" fill="none" stroke-linecap="round"/>
+              <!-- pico superior con narina -->
+              <g class="l-pico-sup">
+                <path d="M176 74 C210 78 220 104 204 126 C192 136 178 130 170 118 C164 104 166 84 176 74 Z" fill="url(#lgPico)"/>
+                <path d="M176 74 C196 76 208 90 208 102 C198 92 186 84 174 82 Z" fill="#DDE3E9" opacity=".7"/>
+                <circle cx="184" cy="88" r="2.6" fill="#5A626B"/>
+              </g>
+              <!-- pico inferior articulado -->
+              <path class="l-pico-inf" d="M172 121 C184 129 195 131 201 126 C198 138 181 143 167 133 Q167 126 172 121 Z" fill="#5D6670"/>
+            </g>
+
           </g>
-          <!-- cuerpo -->
-          <ellipse cx="110" cy="160" rx="58" ry="72" fill="#E74C3C"/>
-          <ellipse cx="110" cy="185" rx="34" ry="42" fill="#F5B7B1" opacity=".55"/>
-          <!-- ala -->
-          <g class="loro-ala">
-            <path d="M118 128 C170 132 186 176 168 214 C150 200 128 186 116 168 Z" fill="#C0392B"/>
-            <path d="M126 140 C164 146 176 178 162 204 C148 192 132 178 124 162 Z" fill="#2E86C1" opacity=".85"/>
-            <path d="M132 152 C158 158 166 180 156 198 C146 188 136 176 130 164 Z" fill="#F1C40F" opacity=".9"/>
-          </g>
-          <!-- cabeza -->
-          <circle cx="122" cy="88" r="44" fill="#E74C3C"/>
-          <ellipse cx="136" cy="92" rx="20" ry="24" fill="#FDFEFE"/>
-          <!-- ojo -->
-          <circle cx="132" cy="84" r="7.5" fill="#1B2631"/>
-          <circle cx="134.5" cy="81.5" r="2.4" fill="#fff"/>
-          <ellipse class="loro-parpado" cx="132" cy="84" rx="8.5" ry="8" fill="#E74C3C"/>
-          <!-- pico -->
-          <path d="M158 78 C186 80 192 100 178 112 C168 118 158 114 152 106 C148 96 150 84 158 78 Z" fill="#7F8C8D"/>
-          <path class="loro-pico-inf" d="M154 108 C166 116 176 116 182 112 C178 124 162 128 152 118 Z" fill="#5D6D7E"/>
-          <!-- patas y rama -->
-          <path d="M96 226 L96 240 M124 226 L124 240" stroke="#7F8C8D" stroke-width="6" stroke-linecap="round"/>
-          <rect x="30" y="238" width="160" height="12" rx="6" fill="#8E5A2B"/>
         </g>
       </svg>
       <div class="loro-hint" id="loroHint">tocá al loro 🦜</div>
@@ -2234,17 +2351,28 @@ function montarLoro(a){
   svg.addEventListener("click",()=>{
     // animación de hablar
     svg.classList.remove("loro-habla"); void svg.offsetWidth; svg.classList.add("loro-habla");
-    // notas musicales
+    clearTimeout(svg._hablaT);
+    svg._hablaT=setTimeout(()=>svg.classList.remove("loro-habla"),700);
+    // notas musicales + destellos
     const esc=document.getElementById("loroEscena");
     for(let i=0;i<3;i++){
       const n=document.createElement("span");
       n.className="loro-nota";
       n.textContent=["♪","♫","♬"][i%3];
-      n.style.left=(38+Math.random()*24)+"%";
-      n.style.top=(18+Math.random()*20)+"%";
+      n.style.left=(40+Math.random()*26)+"%";
+      n.style.top=(14+Math.random()*18)+"%";
       n.style.animationDelay=(i*0.12)+"s";
       esc.appendChild(n);
-      setTimeout(()=>n.remove(),1600);
+      setTimeout(()=>n.remove(),1700);
+    }
+    for(let i=0;i<3;i++){
+      const c=document.createElement("span");
+      c.className="loro-chispa"; c.textContent="✦";
+      c.style.left=(22+Math.random()*56)+"%";
+      c.style.top=(22+Math.random()*40)+"%";
+      c.style.animationDelay=(i*0.08)+"s";
+      esc.appendChild(c);
+      setTimeout(()=>c.remove(),1100);
     }
     // reproducir: presentación la primera vez, después rotación
     if(sonando){ try{ sonando.pause(); sonando.currentTime=0; }catch(e){} }
