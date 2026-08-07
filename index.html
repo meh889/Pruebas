@@ -1357,8 +1357,33 @@ function montarSimon(a){
   const META=Math.min(15,Math.max(2,parseInt(a.rondas,10)||5));
   const COLS=["#E86A7C","#5FC49E","#6FA8DC","#E4B75B"];
   const SND=a.sonidos||{};
+  /* sonido sin delay: se precargan y decodifican los audios UNA vez
+     al abrir el juego, y se disparan desde memoria (latencia ~0) */
+  let actx=null; const bufs={};
+  (async function precargar(){
+    try{
+      actx=new (window.AudioContext||window.webkitAudioContext)();
+      const lista=[["ok",SND.acierto||"simon-ok.m4a"],["err",SND.error||"simon-err.m4a"]];
+      for(const [k,f] of lista){
+        try{
+          const r=await fetch(f);
+          if(r.ok) bufs[k]=await actx.decodeAudioData(await r.arrayBuffer());
+        }catch(e){}
+      }
+    }catch(e){}
+  })();
   const sonar=t=>{
-    const f = t==="ok" ? (SND.acierto||"simon-ok.m4a") : (SND.error||"simon-err.m4a");
+    const k=t==="ok"?"ok":"err";
+    if(actx && bufs[k]){
+      try{
+        if(actx.state==="suspended") actx.resume();
+        const s=actx.createBufferSource();
+        s.buffer=bufs[k]; s.connect(actx.destination); s.start(0);
+        return;
+      }catch(e){}
+    }
+    // plan B si la precarga falló
+    const f = k==="ok" ? (SND.acierto||"simon-ok.m4a") : (SND.error||"simon-err.m4a");
     try{ const au=new Audio(f); au.volume=0.55; au.play().catch(()=>{}); }catch(e){}
   };
   // velocidad: normal hasta la ronda 6; desde la 7 acelera 5% por ronda (7=5%, 8=10%, 9=15%, 10=20%)
@@ -1411,6 +1436,7 @@ function montarSimon(a){
     b.style.display="inline-block"; b.textContent="Reintentar";
   }
   document.getElementById("siBtn").addEventListener("click",function(){
+    if(actx && actx.state==="suspended") actx.resume();
     this.style.display="none";
     document.getElementById("siResult").textContent="";
     seq=[Math.floor(Math.random()*4)]; jugando=true; ronda(); mostrar();
