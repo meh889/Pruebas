@@ -34,6 +34,14 @@ const CONFIG = {
     estrellas: true
   },
 
+  // CARPETAS (para tener el repositorio ordenado):
+  // si movés tus audios a una carpeta del repo, poné acá su nombre y la
+  // app los busca ahí solita (ej: "audios/"). Lo mismo con las fotos.
+  // Dejá "" para seguir usando la raíz. No hace falta cambiar los nombres
+  // de archivo en ningún otro lado del CONFIG.
+  carpetaAudios: "",
+  carpetaFotos: "",
+
   /* ----------------------------------------------------------
      PLAN DÍA POR DÍA — mensaje + UNA actividad por fecha.
 
@@ -84,9 +92,11 @@ const CONFIG = {
        { tipo: "nexos",    grupos: [ {nombre:"...", palabras:["A","B","C","D"]}, x4 ] }
                            (16 palabras mezcladas, hay que agruparlas de a 4;
                             4 errores permitidos)
-       { tipo: "snake",    objetivo: 15 }
-                           (la víbora clásica; al comer N manzanas gana y
-                            desbloquea, pero puede seguir por el récord)
+       { tipo: "snake",    objetivo: 15, sonido: "nom.m4a" }
+                           (la víbora clásica, control por deslizamiento;
+                            al comer N manzanas gana y desbloquea, y puede
+                            seguir por el récord. "sonido" es opcional: si
+                            no ponés archivo, suena un blip integrado)
        { tipo: "fotopuzzle", archivo: "foto.jpg", columnas: 5, filas: 4 }
                            (tu foto partida en piezas mezcladas; toca dos
                             piezas para intercambiarlas hasta armarla)
@@ -196,7 +206,7 @@ const CONFIG = {
       mensaje: "VIERNEEES, yey, nos vemos.",
       actividad: { tipo: "atrapar", objetivo: 12 }
    },
-     "2026-08-08": {
+     "2026-08-10": {
       // Día del loro: sin carta ni mensaje, solo el loro que habla con tus audios.
       // Grabá los audios, subilos al repo y listá acá los nombres (los que quieras):
       actividad: { tipo: "loro", audios: ["loro1.m4a", "loro2.m4a", "loro3.m4a","loro4.m4a", "loro5.m4a", "loro6.m4a","loro7.m4a", "loro8.m4a", "loro9.m4a","loro10.m4a", "loro11.m4a", "loro12.m4a","loro13.m4a", "loro14.m4a", "loro15.m4a", "loro16.m4a","loro17.m4a", "loro18.m4a", "loro19.m4a"] }
@@ -208,7 +218,7 @@ const CONFIG = {
       mensaje: "Eu lo lograste! Es el primer juego que dude si lo lograbas.",
       actividad: { tipo: "simon", rondas: 10 }
     },
-     "2026-08-13": {
+     "2026-08-08": {
       modo: "cielo",   // CAMBIO RADICAL 4: modo cielo de día
       sellado: true,
       mensaje: "Dale que arranca una semana llena de planes juntosss.",
@@ -232,7 +242,7 @@ const CONFIG = {
         { nombre: "Nuestros lugares", palabras: ["CINE","LONDRES","PARQUE","CASA"] }
       ] }
     },
-    "2026-08-10": {
+    "2026-08-13": {
       sellado: true,
       mensaje: "Pista: mañana la app se pone linda. Más linda. Vos venite igual que siempre, que ya alcanza.",
       actividad: { tipo: "snake", objetivo: 15 }
@@ -894,14 +904,6 @@ body.modo-cielo .letter{box-shadow:0 12px 30px rgba(46,111,168,.2)}
 
 /* snake */
 #snakeCanvas{width:100%;max-width:320px;border-radius:14px;background:rgba(0,0,0,.22);border:1px solid var(--card-border);touch-action:none;display:block;margin:0 auto}
-.dpad{display:grid;grid-template-columns:repeat(3,58px);gap:6px;justify-content:center;margin-top:12px}
-.dpad button{
-  height:48px;border:1px solid var(--card-border);border-radius:12px;background:var(--key);
-  font-size:1.15rem;color:var(--ink);cursor:pointer;font-family:var(--sans);
-}
-.dpad button:active{background:var(--acc);color:#241A08}
-.dpad .vacio{background:transparent;border:none}
-
 /* rompecabezas con foto (intercambio y deslizante) */
 .fz-grid{display:grid;gap:2px;justify-content:center;margin:8px auto;touch-action:manipulation}
 .fz-tile{
@@ -1052,6 +1054,14 @@ function luminancia(hex){
   const n=parseInt(f,16);
   return (0.299*((n>>16)&255)+0.587*((n>>8)&255)+0.114*(n&255))/255;
 }
+/* rutas: anteponen la carpeta configurada (si hay) a los nombres de archivo */
+function conCarpeta(base,f){
+  if(!f||/^https?:/i.test(f)||f.includes("/")) return f;
+  const c=String(base||"").trim();
+  return c ? c.replace(/\/?$/,"/")+f : f;
+}
+const rutaAudio=f=>conCarpeta(CONFIG.carpetaAudios,f);
+const rutaFoto=f=>conCarpeta(CONFIG.carpetaFotos,f);
 
 /* ---------- motor de caos: decide el look del día ---------- */
 function hashTxt(s){ let h=7; for(const c of s) h=((h*31)+c.charCodeAt(0))>>>0; return h; }
@@ -1275,7 +1285,7 @@ function confetti(){
 }
 function celebrar(){
   confetti();
-  try{ const au=new Audio("win.wav"); au.volume=0.5; au.play().catch(()=>{}); }catch(e){}
+  try{ const au=new Audio(rutaAudio("win.wav")); au.volume=0.5; au.play().catch(()=>{}); }catch(e){}
   if(sellado){
     sellado=false;
     guardar("sello-"+fechaHoy(),"abierto");
@@ -1515,7 +1525,7 @@ function montarSimon(a){
   (async function precargar(){
     try{
       actx=new (window.AudioContext||window.webkitAudioContext)();
-      const lista=[["ok",SND.acierto||"simon-ok.m4a"],["err",SND.error||"simon-err.m4a"]];
+      const lista=[["ok",rutaAudio(SND.acierto||"simon-ok.m4a")],["err",rutaAudio(SND.error||"simon-err.m4a")]];
       for(const [k,f] of lista){
         try{
           const r=await fetch(f);
@@ -1535,7 +1545,7 @@ function montarSimon(a){
       }catch(e){}
     }
     // plan B si la precarga falló
-    const f = k==="ok" ? (SND.acierto||"simon-ok.m4a") : (SND.error||"simon-err.m4a");
+    const f = rutaAudio(k==="ok" ? (SND.acierto||"simon-ok.m4a") : (SND.error||"simon-err.m4a"));
     try{ const au=new Audio(f); au.volume=0.55; au.play().catch(()=>{}); }catch(e){}
   };
   /* tonos clásicos del Simon original: cada pad tiene su nota
@@ -2280,7 +2290,7 @@ function montarAudio(a){
       ${a.texto?`<div class="mision-txt" style="margin-bottom:12px">${a.texto}</div>`:""}
       <audio controls preload="metadata" style="width:100%;border-radius:12px"
         onerror="this.parentElement.querySelector('.result').textContent='No encontré el audio ${a.archivo||""}. ¿Está subido al repositorio?'">
-        <source src="${a.archivo||""}">
+        <source src="${rutaAudio(a.archivo)||""}">
       </audio>
       <div class="result"></div>
     </div>`;
@@ -2401,7 +2411,7 @@ function montarLoro(a){
       <div class="loro-hint" id="loroHint">tocá al loro 🦜</div>
     </div>`;
   // precarga de los audios
-  const players=lista.map(f=>{ try{ const au=new Audio(f); au.preload="auto"; return au; }catch(e){ return null; } });
+  const players=lista.map(f=>{ try{ const au=new Audio(rutaAudio(f)); au.preload="auto"; return au; }catch(e){ return null; } });
   // el PRIMER audio de la lista suena una sola vez (presentación);
   // después los toques rotan en loop entre los demás
   let intro = players.length>1 && !!players[0];
@@ -2592,19 +2602,46 @@ function montarNexos(a){
 function montarSnake(a){
   const META=Math.max(5,parseInt(a.objetivo,10)||15);
   cont.innerHTML=`
-    <div class="box">
+    <div class="box" id="skBox">
       <div class="atrapar-hud"><span id="skPts">🍎 0 / ${META}</span><span id="skBest"></span></div>
       <canvas id="snakeCanvas" width="300" height="300"></canvas>
-      <div class="dpad">
-        <div class="vacio"></div><button data-dir="up">⬆️</button><div class="vacio"></div>
-        <button data-dir="left">⬅️</button><button data-dir="down">⬇️</button><button data-dir="right">➡️</button>
-      </div>
+      <p class="note" style="margin-top:10px">deslizá el dedo sobre el tablero para girar</p>
       <div class="result" id="skResult"></div>
       <button class="btn" id="skBtn">Jugar</button>
     </div>`;
   const CV=document.getElementById("snakeCanvas"), CX=CV.getContext&&CV.getContext("2d");
   const N=15, CELL=20;
   let snake, dir, nextDir, food, timer=null, pts=0, logrado=false;
+  /* sonido al comer: archivo configurable (a.sonido) o blip sintetizado */
+  let actx=null, buf=null;
+  (async()=>{
+    if(!a.sonido) return;
+    try{
+      actx=new (window.AudioContext||window.webkitAudioContext)();
+      const r=await fetch(rutaAudio(a.sonido));
+      if(r.ok) buf=await actx.decodeAudioData(await r.arrayBuffer());
+    }catch(e){}
+  })();
+  function comerSnd(){
+    try{
+      if(!actx) actx=new (window.AudioContext||window.webkitAudioContext)();
+      if(actx.state==="suspended") actx.resume();
+      if(buf){
+        const s=actx.createBufferSource();
+        s.buffer=buf; s.connect(actx.destination); s.start(0);
+        return;
+      }
+      const t0=actx.currentTime, o=actx.createOscillator(), g=actx.createGain();
+      o.type="triangle";
+      o.frequency.setValueAtTime(440,t0);
+      o.frequency.exponentialRampToValueAtTime(880,t0+0.09);
+      g.gain.setValueAtTime(0.0001,t0);
+      g.gain.exponentialRampToValueAtTime(0.18,t0+0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001,t0+0.12);
+      o.connect(g); g.connect(actx.destination);
+      o.start(t0); o.stop(t0+0.14);
+    }catch(e){}
+  }
   const best=()=>parseInt(leer("snake-best")||"0",10);
   const pintarBest=()=>document.getElementById("skBest").textContent="récord: "+best();
   pintarBest();
@@ -2655,7 +2692,7 @@ function montarSnake(a){
     }
     snake.unshift(h);
     if(h.x===food.x&&h.y===food.y){
-      pts++;
+      pts++; comerSnd();
       document.getElementById("skPts").textContent=`🍎 ${pts} / ${META}`;
       if(pts>=META) lograr();
       comida();
@@ -2667,30 +2704,35 @@ function montarSnake(a){
     const nd=m[d];
     if(nd && !(nd.x===-dir.x && nd.y===-dir.y)) nextDir=nd;
   }
-  document.querySelectorAll(".dpad button[data-dir]").forEach(b=>b.addEventListener("click",()=>setDir(b.dataset.dir)));
+  /* control 100% táctil sobre TODO el tablero, con scroll bloqueado */
+  const box=document.getElementById("skBox");
+  box.style.touchAction="none";
+  box.addEventListener("touchmove",e=>{ e.preventDefault(); },{passive:false});
   let tS=null;
-  CV.addEventListener("touchstart",e=>{ tS=e.touches[0]; },{passive:true});
-  CV.addEventListener("touchend",e=>{
+  box.addEventListener("touchstart",e=>{ if(e.target.tagName!=="BUTTON") tS=e.touches[0]; },{passive:true});
+  box.addEventListener("touchend",e=>{
     if(!tS)return;
     const dx=e.changedTouches[0].clientX-tS.clientX, dy=e.changedTouches[0].clientY-tS.clientY;
+    tS=null;
+    if(Math.abs(dx)<22 && Math.abs(dy)<22) return; // toque corto: no es swipe
     if(Math.abs(dx)>Math.abs(dy)) setDir(dx>0?"right":"left");
     else setDir(dy>0?"down":"up");
-    tS=null;
   },{passive:true});
   document.getElementById("skBtn").addEventListener("click",function(){
+    try{ if(actx&&actx.state==="suspended") actx.resume(); }catch(e){}
     this.style.display="none";
     document.getElementById("skResult").textContent="";
     clearInterval(timer); reset();
     timer=setInterval(paso,160);
   });
   reset();
-  window._dbg=window._dbg||{}; window._dbg.snake={win:lograr};
+  window._dbg=window._dbg||{}; window._dbg.snake={win:lograr, comer:comerSnd, girar:setDir};
 }
 
 /* ===== rompecabezas de foto (intercambio de piezas) ===== */
 function montarFotoPuzzle(a){
   const C=Math.max(2,parseInt(a.columnas,10)||5), F=Math.max(2,parseInt(a.filas,10)||4);
-  const N=C*F, archivo=a.archivo||"";
+  const N=C*F, archivo=rutaFoto(a.archivo)||"";
   const disp=(cont.clientWidth||340)-46;
   const tw=Math.floor(disp/C), th=tw;
   cont.innerHTML=`
@@ -2741,7 +2783,7 @@ function montarFotoPuzzle(a){
 /* ===== rompecabezas deslizante de foto ===== */
 function montarDeslizante(a){
   const T=Math.min(5,Math.max(3,parseInt(a.tam,10)||4));
-  const N=T*T, archivo=a.archivo||"";
+  const N=T*T, archivo=rutaFoto(a.archivo)||"";
   const disp=(cont.clientWidth||340)-46;
   const tw=Math.floor(disp/T), th=tw;
   cont.innerHTML=`
@@ -2868,7 +2910,7 @@ function montarFoto(a){
   cont.innerHTML=`
     <div class="box">
       <div class="polaroid">
-        <img src="${a.archivo||""}" alt="foto"
+        <img src="${rutaFoto(a.archivo)||""}" alt="foto"
              onerror="this.parentElement.innerHTML='<p style=&quot;padding:30px 10px&quot;>No encontré la foto <b>${a.archivo||""}</b>. ¿Está subida al repositorio?</p>'">
         <p>${a.texto||""}</p>
       </div>
