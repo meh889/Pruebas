@@ -253,7 +253,7 @@ const CONFIG = {
       // Subí a audios/ la canción, y a fotos/ el fondo (fondo3000.jpg) y los
       // recuerdos nombrados recuerdo1.jpg, recuerdo2.jpg, ... recuerdo30.jpg
       actividad: { tipo: "epico", numero: 3000,
-        cancion: "dia3000.m4a",
+        cancion: "cancion3000.m4a",
         fondo: "fondo3000.jpg",
         fotos: { prefijo: "recuerdo", cantidad: 30, ext: "jpg" },
         hitos: [
@@ -2950,18 +2950,15 @@ function montarEpico(a){
       <div class="ep-contador" id="epNum">0</div>
       <div class="ep-hito" id="epHito"></div>
       <div class="ep-titulo" id="epTitulo"><b>${TOTAL.toLocaleString("es-AR")} días</b><span>${a.subtitulo||"y contando"}</span></div>
-      <div class="ep-hint" id="epHint">${FOTOS.length?"tocá las estrellas más brillantes ✦":"tocá el cielo ✦"}</div>
+      <div class="ep-hint${a.cancion?" ver":""}" id="epHint">${a.cancion?"tocá la estrella para empezar ✦":""}</div>
     </div>
     <div class="ep-visor" id="epVisor"><img id="epFoto" alt="recuerdo"></div>`;
   /* canción de apertura: intenta sola; si iOS la bloquea, con el primer toque */
+  let musica=null, tocarMusica=()=>{};
   if(a.cancion){
-    const musica=new Audio(rutaAudio(a.cancion));
+    musica=new Audio(rutaAudio(a.cancion));
     musica.volume=0.55;
-    const arrancar=()=>{ try{ const pr=musica.play(); if(pr&&pr.catch) pr.catch(()=>{}); }catch(e){} };
-    arrancar();
-    const unaVez=()=>{ arrancar(); };
-    document.addEventListener("touchstart",unaVez,{once:true});
-    document.addEventListener("click",unaVez,{once:true});
+    tocarMusica=()=>{ try{ const pr=musica.play(); if(pr&&pr.catch) pr.catch(()=>{}); }catch(e){} };
   }
   const cv=document.getElementById("epCanvas");
   /* fondo de la escena: imagen tuya oscurecida detrás de las estrellas */
@@ -3010,7 +3007,19 @@ function montarEpico(a){
     const p=puntoEstrella(u,Math.min(1,rel));
     return { x:p.x, y:p.y, foto:f, tw:Math.random()*Math.PI*2 };
   });
-  let fase="contando", t0=performance.now(), tForma=0, pulso=0, fugaces=[];
+  let fase=(a.cancion?"intro":"contando"), t0=performance.now(), tForma=0, pulso=0, fugaces=[];
+  function empezar(){
+    if(fase!=="intro") return;
+    tocarMusica();
+    fase="contando"; t0=performance.now();
+    const hint=document.getElementById("epHint");
+    hint.classList.remove("ver");
+  }
+  if(a.cancion && musica){
+    /* si el navegador permite autoplay, la intro se saltea sola */
+    musica.addEventListener("playing",()=>{ if(fase==="intro"){ fase="contando"; t0=performance.now(); document.getElementById("epHint").classList.remove("ver"); } },{once:true});
+    tocarMusica();
+  }
   const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
   let hitoIdx=0, hitoTimer=null;
   function mostrarHito(hh){
@@ -3031,7 +3040,9 @@ function montarEpico(a){
     setTimeout(()=>{
       n.classList.add("fuera");
       document.getElementById("epTitulo").classList.add("ver");
-      document.getElementById("epHint").classList.add("ver");
+      const hint=document.getElementById("epHint");
+      hint.textContent = ESP.length ? "tocá las estrellas más brillantes ✦" : "tocá el cielo ✦";
+      hint.classList.add("ver");
       celebrar();
       const l=document.getElementById("letter");
       pintarCarta(); l.style.display="block"; tipearCarta();
@@ -3039,6 +3050,34 @@ function montarEpico(a){
   }
   function frame(now){
     ctx.clearRect(0,0,S,S);
+    if(fase==="intro"){
+      /* cielo en calma esperando el toque: pocas estrellas tenues + una que late */
+      for(let i=0;i<90;i++){
+        const p=P[i];
+        p.x+=p.vx*0.5; p.y+=p.vy*0.5;
+        if(p.x<2||p.x>S-2) p.vx*=-1;
+        if(p.y<2||p.y>S-2) p.vy*=-1;
+        p.tw+=0.03;
+        ctx.globalAlpha=0.18+0.14*Math.sin(p.tw);
+        ctx.fillStyle=p.c;
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
+      }
+      const lat=1+0.14*Math.sin(now*0.0035);
+      ctx.globalAlpha=0.9;
+      ctx.fillStyle="#F2C14E";
+      ctx.shadowColor="#F2C14E"; ctx.shadowBlur=18*lat;
+      ctx.beginPath(); ctx.arc(CX,CY,5*lat,0,Math.PI*2); ctx.fill();
+      ctx.shadowBlur=0;
+      ctx.strokeStyle="rgba(242,193,78,.85)";
+      ctx.lineWidth=1.4;
+      ctx.beginPath();
+      ctx.moveTo(CX-14*lat,CY); ctx.lineTo(CX+14*lat,CY);
+      ctx.moveTo(CX,CY-14*lat); ctx.lineTo(CX,CY+14*lat);
+      ctx.stroke();
+      ctx.globalAlpha=1;
+      requestAnimationFrame(frame);
+      return;
+    }
     if(fase==="contando"){
       const t=Math.min(1,(now-t0)/(reduceMotion?600:DUR_CONTEO));
       const n=Math.max(1,Math.floor(ease(t)*TOTAL));
@@ -3115,6 +3154,7 @@ function montarEpico(a){
   } else {
     /* sin canvas: mostrar directamente el estado final */
     fase="listo";
+    document.getElementById("epHint").textContent = ESP.length ? "tocá las estrellas más brillantes ✦" : "tocá el cielo ✦";
     document.getElementById("epNum").textContent=TOTAL.toLocaleString("es-AR");
     document.getElementById("epTitulo").classList.add("ver");
     document.getElementById("epHint").classList.add("ver");
@@ -3144,6 +3184,7 @@ function montarEpico(a){
   visor.addEventListener("click",cerrarFoto);
   foto.addEventListener("error",cerrarFoto);
   cv.addEventListener("click",e=>{
+    if(fase==="intro"){ empezar(); return; }
     if(fase==="contando"){ terminarConteo(); return; }
     if(fase==="listo" && ESP.length){
       const rect=cv.getBoundingClientRect();
@@ -3159,7 +3200,7 @@ function montarEpico(a){
     pulso=1;
     fugaces.push({x:Math.random()*S*0.7+S*0.15, y:S*0.12, vx:-(2+Math.random()*2), vy:2.4+Math.random()*1.6, vida:1});
   });
-  window._dbg=window._dbg||{}; window._dbg.epico={saltar:terminarConteo, fase:()=>fase, total:TOTAL,
+  window._dbg=window._dbg||{}; window._dbg.epico={saltar:terminarConteo, empezar, fase:()=>fase, total:TOTAL,
     especiales:()=>ESP.length, abrir:(i)=>abrirFoto(ESP[i],ESP[i].x,ESP[i].y), cerrar:cerrarFoto,
     fotoSrc:()=>foto.src};
 }
