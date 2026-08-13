@@ -3005,8 +3005,29 @@ function montarEpico(a){
     const u=(i+0.5)/FOTOS.length;
     const rel=0.55+((i*37)%40)/100;
     const p=puntoEstrella(u,Math.min(1,rel));
-    return { x:p.x, y:p.y, foto:f, tw:Math.random()*Math.PI*2 };
+    return { x:p.x, y:p.y, foto:f, tw:Math.random()*Math.PI*2, ok:false, src:"" };
   });
+  /* precarga verificadora: solo brillan las estrellas cuya foto existe.
+     Prueba cada nombre y sus variantes (.jpg / .JPG / .jpeg) */
+  (function precargarFotos(){
+    const variantes=f=>{
+      const v=[f];
+      const t=f.replace(/\.jpg$/i,m=>m===".jpg"?".JPG":".jpg"); if(t!==f) v.push(t);
+      const j=f.replace(/\.(jpg|JPG)$/,".jpeg"); if(j!==f) v.push(j);
+      return v;
+    };
+    ESP.forEach(es=>{
+      const cand=variantes(es.foto); let i=0;
+      const probar=()=>{
+        if(i>=cand.length) return;
+        const im=new Image();
+        im.onload=()=>{ es.ok=true; es.src=rutaFoto(cand[i]); };
+        im.onerror=()=>{ i++; probar(); };
+        im.src=rutaFoto(cand[i]);
+      };
+      probar();
+    });
+  })();
   let fase=(a.cancion?"intro":"contando"), t0=performance.now(), tForma=0, pulso=0, fugaces=[];
   function empezar(){
     if(fase!=="intro") return;
@@ -3121,6 +3142,7 @@ function montarEpico(a){
       /* estrellas especiales (las que guardan fotos): más grandes, con destello */
       if(fase==="listo"){
         for(const e of ESP){
+          if(!e.ok) continue;
           e.tw+=0.06;
           const ex=CX+(e.x-CX)*lat, ey=CY+(e.y-CY)*lat;
           const b=0.7+0.3*Math.sin(e.tw);
@@ -3164,7 +3186,7 @@ function montarEpico(a){
   const foto=document.getElementById("epFoto");
   function abrirFoto(e,ex,ey){
     foto._alt=0;
-    foto.src=rutaFoto(e.foto);
+    foto.src=e.src||rutaFoto(e.foto);
     const rect=cv.getBoundingClientRect();
     const esc=rect.width/S;
     const dx=rect.left+ex*esc-window.innerWidth/2;
@@ -3205,6 +3227,7 @@ function montarEpico(a){
       const my=(e.clientY-rect.top)*(S/rect.height);
       let mejor=null, md=999;
       for(const es of ESP){
+        if(!es.ok) continue;
         const d=Math.hypot(es.x-mx, es.y-my);
         if(d<md){ md=d; mejor=es; }
       }
@@ -3214,7 +3237,8 @@ function montarEpico(a){
     fugaces.push({x:Math.random()*S*0.7+S*0.15, y:S*0.12, vx:-(2+Math.random()*2), vy:2.4+Math.random()*1.6, vida:1});
   });
   window._dbg=window._dbg||{}; window._dbg.epico={saltar:terminarConteo, empezar, fase:()=>fase, total:TOTAL,
-    especiales:()=>ESP.length, abrir:(i)=>abrirFoto(ESP[i],ESP[i].x,ESP[i].y), cerrar:cerrarFoto,
+    especiales:()=>ESP.length, listas:()=>ESP.filter(e=>e.ok).length, esp:ESP,
+    abrir:(i)=>{const o=ESP.filter(e=>e.ok); if(o[i]) abrirFoto(o[i],o[i].x,o[i].y);}, cerrar:cerrarFoto,
     fotoSrc:()=>foto.src};
 }
 
