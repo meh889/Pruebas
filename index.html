@@ -88,7 +88,7 @@ const CONFIG = {
                             reproduce tus audios, rotándolos en orden)
        { tipo: "epico",    numero: 3000, cancion: "tema.m4a",
          fondo: "fondo.jpg",
-         fotos: { prefijo: "recuerdo", cantidad: 30, ext: "jpg" },
+         fotos: { prefijo: "recuerdo", cantidad: 30, ext: "JPG" },
          hitos: [ {dia: 1, texto: "..."} ] }
                            (día de aniversario: un contador hace nacer una
                             estrella por cada día, muestra tus hitos, y al
@@ -255,7 +255,7 @@ const CONFIG = {
       actividad: { tipo: "epico", numero: 3000,
         cancion: "dia3000.m4a",
         fondo: "fondo3000.jpg",
-        fotos: { prefijo: "recuerdo", cantidad: 30, ext: "jpg" },
+        fotos: { prefijo: "recuerdo", cantidad: 30, ext: "JPG" },
         hitos: [
         { dia: 1,    texto: "El día que empezamos" },
         { dia: 500,  texto: "Ya no me imaginaba sin vos" },
@@ -3163,6 +3163,7 @@ function montarEpico(a){
   const visor=document.getElementById("epVisor");
   const foto=document.getElementById("epFoto");
   function abrirFoto(e,ex,ey){
+    foto._alt=0;
     foto.src=rutaFoto(e.foto);
     const rect=cv.getBoundingClientRect();
     const esc=rect.width/S;
@@ -3182,7 +3183,19 @@ function montarEpico(a){
     setTimeout(()=>{ visor.style.display="none"; },280);
   }
   visor.addEventListener("click",cerrarFoto);
-  foto.addEventListener("error",cerrarFoto);
+  foto.addEventListener("error",()=>{
+    /* reintento automático: .jpg <-> .JPG <-> .jpeg */
+    const src=foto.getAttribute("src")||"";
+    const intentos=foto._alt||0;
+    const variantes=[s=>s.replace(/\.jpg$/i,m=>m===".jpg"?".JPG":".jpg"),
+                     s=>s.replace(/\.(jpg|JPG)$/,".jpeg")];
+    if(intentos<variantes.length){
+      foto._alt=intentos+1;
+      const nueva=variantes[intentos](src);
+      if(nueva!==src){ foto.src=nueva; return; }
+    }
+    foto._alt=0; cerrarFoto();
+  });
   cv.addEventListener("click",e=>{
     if(fase==="intro"){ empezar(); return; }
     if(fase==="contando"){ terminarConteo(); return; }
